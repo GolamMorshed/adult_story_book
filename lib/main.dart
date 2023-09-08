@@ -8,7 +8,7 @@ import 'package:adult_story_book/screens/social_media.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'social_media',
+    initialRoute: 'registration',
     routes: {
       'login': (context) => Login(),
       'registration': (context) => Registration(),
