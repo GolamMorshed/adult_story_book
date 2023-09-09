@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'package:adult_story_book/screens/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:adult_story_book/screens/dashboard.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -88,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Extract the user ID from the response data
         String userId = userData['id'].toString();
 
-        // Navigate to the Dashboard screen with the userId
+        //Navigate to the Dashboard screen with the userId
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -112,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
-
 }
 
 void main() {

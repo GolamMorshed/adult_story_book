@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() async {
+  // Retrieve the user ID from SharedPreferences
+  String? userId = await getUserIdFromSharedPreferences();
+  runApp(DashboardApp(userId: userId ?? ""));
+}
+
+
 class DashboardApp extends StatelessWidget {
   final String userId;
   DashboardApp({required this.userId});
@@ -9,7 +18,7 @@ class DashboardApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dashboard App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: Dashboard(),
+
     );
   }
 }
@@ -21,16 +30,16 @@ class Dashboard extends StatelessWidget {
       appBar: AppBar(
         title: Text('Dashboard'),
       ),
-      drawer: Sidebar(), // Add the Sidebar here
-      body: DashboardGrid(), // Add the DashboardGrid widget here
+      drawer: Sidebar(),
+      body: DashboardGrid(),
     );
   }
 }
 
 class DashboardGrid extends StatelessWidget {
   final List<String> gridItems = [
-    'Item 1',
-    'Item 2',
+    'Create Story',
+    'Story Lists',
     'Item 3',
     'Item 4',
   ];
@@ -46,14 +55,13 @@ class DashboardGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Number of columns in the grid (2 by 2)
+        crossAxisCount: 2,
         crossAxisSpacing: 8.0,
         mainAxisSpacing: 8.0,
       ),
       itemCount: gridItems.length,
       itemBuilder: (context, index) {
         Color itemColor = itemColors[index % itemColors.length];
-
         return GridTile(
           child: Container(
             decoration: BoxDecoration(
@@ -112,6 +120,8 @@ class Sidebar extends StatelessWidget {
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () {
+              // Clear userId when logging out
+              clearUserIdInSharedPreferences();
               Navigator.pop(context);
             },
           ),
@@ -119,4 +129,19 @@ class Sidebar extends StatelessWidget {
       ),
     );
   }
+}
+
+void saveUserIdToSharedPreferences(String userId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('userId', userId);
+}
+
+Future<String?> getUserIdFromSharedPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userId');
+}
+
+void clearUserIdInSharedPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
 }
