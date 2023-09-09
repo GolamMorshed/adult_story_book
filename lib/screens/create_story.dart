@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences package
 
 void main() {
   runApp(MyApp());
@@ -79,6 +80,16 @@ class _StoryInputPageState extends State<StoryInputPage> {
       print(genre);
       print(story);
 
+      // Get user_id from SharedPreferences
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // int? userId = prefs.getInt('user_id');
+
+      // if (userId == null) {
+      //   // Handle the case where user_id is not available
+      //   print('User ID not found in SharedPreferences');
+      //   return;
+      // }
+
       final apiUrl = 'http://127.0.0.1:8000/api/stories';
 
       final response = await http.post(
@@ -87,9 +98,11 @@ class _StoryInputPageState extends State<StoryInputPage> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
+          // 'user_id': 1,
           'title': title,
           'genre': genre,
           'content': story,
+
         }),
       );
 

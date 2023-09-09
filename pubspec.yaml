@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   speech_to_text: ^5.4.0
+  flutter_tts: ^3.8.2
+#  text_to_speech: ^3.8.2
   http: ^0.13.3
   shared_preferences: ^2.0.8
 
