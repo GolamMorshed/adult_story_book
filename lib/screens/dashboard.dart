@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DashboardApp extends StatelessWidget {
+  final String userId;
+  DashboardApp({required this.userId});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -104,7 +104,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     Navigator.push(
       context, // the current build context
       MaterialPageRoute(
-        builder: (context) => Login(),
+        builder: (context) => LoginScreen(),
       ),
     );
   }

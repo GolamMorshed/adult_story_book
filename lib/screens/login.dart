@@ -1,43 +1,35 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:adult_story_book/screens/registration.dart';
-import 'package:adult_story_book/screens/forgotpassword.dart';
+import 'package:http/http.dart' as http;
+import 'package:adult_story_book/screens/dashboard.dart';
 
-class Login extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: LoginPage(),
-    );
-  }
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class LoginPage extends StatefulWidget {
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final String _validUsername = 'admin';
-  final String _validPassword = 'password';
+  final String _apiUrl = 'http://127.0.0.1:8000/api/login'; // Replace with your API URL
   bool _loginFailed = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login Page'),
+        title: Text('Login'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
             TextField(
-              controller: _usernameController,
+              controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'Username',
+                labelText: 'Email',
               ),
             ),
             SizedBox(height: 16),
@@ -48,77 +40,83 @@ class _LoginPageState extends State<LoginPage> {
                 labelText: 'Password',
               ),
             ),
-            SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _login,
-                child: Text('Login'),
-              ),
+            SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _login,
+              child: Text('Login'),
             ),
             if (_loginFailed)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Invalid username or password',
+                  'Invalid email or password',
                   style: TextStyle(color: Colors.red),
                 ),
               ),
-            SizedBox(height: 16),
-            TextButton(
-              onPressed: _navigateToRegistration,
-              child: Text('Create an account'),
-            ),
-            TextButton(
-              onPressed: _forgotPassword,
-              child: Text('Forgot Password?'),
-            ),
           ],
         ),
       ),
     );
   }
 
-  void _login() {
-    String username = _usernameController.text.trim();
+  void _login() async {
+    String email = _emailController.text.trim();
     String password = _passwordController.text;
 
-    if (username == _validUsername && password == _validPassword) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Login Successful'),
-          content: Text('Welcome, $username!'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-      setState(() {
-        _loginFailed = false;
-      });
+    // Create a Map with the credentials to send in the request body
+    Map<String, String> credentials = {
+      'email': email,
+      'password': password,
+    };
+
+    // Send a POST request to your API
+    final response = await http.post(
+      Uri.parse(_apiUrl),
+      body: credentials,
+    );
+
+    if (response.statusCode == 200) {
+      // Successful login
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print(data);
+
+      // Check if 'user' field is present and it's a Map
+      if (data.containsKey('user') && data['user'] is Map<String, dynamic>) {
+        Map<String, dynamic> userData = data['user'] as Map<String, dynamic>;
+        print('Login successful. User ID: ${userData['id']}');
+
+        // Extract the user ID from the response data
+        String userId = userData['id'].toString();
+
+        // Navigate to the Dashboard screen with the userId
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DashboardApp(userId: userId),
+          ),
+        );
+
+        setState(() {
+          _loginFailed = false;
+        });
+      } else {
+        // 'user' field is missing or not a Map
+        setState(() {
+          _loginFailed = true;
+        });
+      }
     } else {
+      // Login failed
       setState(() {
         _loginFailed = true;
       });
     }
   }
 
-  void _navigateToRegistration() {
+}
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => RegistrationPage()),
-    );
-  }
-
-  void _forgotPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
-    );
-  }
+void main() {
+  runApp(MaterialApp(
+    home: LoginScreen(),
+  ));
 }
