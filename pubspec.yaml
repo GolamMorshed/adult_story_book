@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  speech_to_text: ^6.0.0
+  speech_to_text: ^5.4.0
   http: ^0.13.3
   shared_preferences: ^2.0.8
 

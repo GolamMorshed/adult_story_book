@@ -49,6 +49,9 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
     <string>Your microphone will be used for speech recognition.</string>
-
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Recognition and display input</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Defect speech input</string>
 </dict>
 </plist>
