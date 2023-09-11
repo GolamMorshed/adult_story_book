@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:adult_story_book/screens/dashboard.dart';
 
 class Story {
   final int id;
@@ -68,7 +69,13 @@ class _StoryListPageState extends State<StoryListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Stories'),
+        title: Text('Story Viewer'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Navigate back to the previous screen
+          },
+        ),
       ),
       body: ListView.builder(
         itemCount: stories.length,

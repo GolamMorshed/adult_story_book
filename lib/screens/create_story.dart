@@ -4,6 +4,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences package
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:adult_story_book/screens/dashboard.dart';
 
 class MyApp extends StatelessWidget {
   final String userId; // Add userId parameter
@@ -99,7 +100,6 @@ class _StoryInputPageState extends State<StoryInputPage> {
         }),
       );
 
-
       if (response.statusCode == 201) {
         titleController.clear();
         setState(() {
@@ -140,7 +140,13 @@ class _StoryInputPageState extends State<StoryInputPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create a Story'),
+        title: Text('Create Story'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Navigate back to the previous screen
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -153,6 +159,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 'Title:',
                 style: TextStyle(fontSize: 18),
               ),
+              SizedBox(height: 8),
               TextFormField(
                 controller: titleController,
                 validator: (value) {
@@ -171,6 +178,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 'Genre:',
                 style: TextStyle(fontSize: 18),
               ),
+              SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: selectedGenre,
                 validator: (value) {
@@ -206,6 +214,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 'Story:',
                 style: TextStyle(fontSize: 18),
               ),
+              SizedBox(height: 8),
               // Replace TextFormField with a Row containing a TextFormField and a microphone button
               Row(
                 children: [

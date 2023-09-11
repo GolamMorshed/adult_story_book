@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-
+import 'package:adult_story_book/screens/dashboard.dart';
 class Story {
   final String title;
   final String genre;
@@ -75,6 +75,12 @@ class _AllStoriesState extends State<AllStories> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('Story Viewer'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop(); // Navigate back to the previous screen
+            },
+          ),
         ),
         body: Column(
           children: [

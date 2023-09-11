@@ -1,21 +1,62 @@
-import 'package:adult_story_book/screens/story_list.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
+import 'package:adult_story_book/screens/all_stories.dart';
+import 'package:adult_story_book/screens/story_list.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   final String userId;
   final String userName;
   Dashboard({required this.userId, required this.userName});
 
   @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  bool isDarkMode = false; // Track dark mode state
+
+  @override
+  void initState() {
+    super.initState();
+    loadTheme();
+  }
+
+  // Function to load the theme preference from SharedPreferences
+  void loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  // Function to toggle between light and dark modes
+  void toggleDarkMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = !isDarkMode;
+      prefs.setBool('isDarkMode', isDarkMode);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dashboard'),
+    final themeData = isDarkMode ? ThemeData.dark() : ThemeData.light();
+
+    return MaterialApp(
+      title: 'Dashboard App',
+      theme: themeData, // Set the theme based on isDarkMode
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Dashboard'),
+        ),
+        drawer: Sidebar(userName: widget.userName),
+        body: DashboardGrid(userId: widget.userId),
+        floatingActionButton: FloatingActionButton(
+          onPressed: toggleDarkMode, // Toggle dark mode on button press
+          child: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+        ),
       ),
-      drawer: Sidebar(userName: userName),
-      body: DashboardGrid(userId: userId),
     );
   }
 }
@@ -23,10 +64,10 @@ class Dashboard extends StatelessWidget {
 class DashboardGrid extends StatelessWidget {
   final String userId;
   final List<String> gridItems = [
+    'Extract Images',
     'Create Story',
     'Story Lists',
-    'Item 3',
-    'Item 4',
+    'All Stories',
   ];
 
   final List<Color> itemColors = [
@@ -50,28 +91,58 @@ class DashboardGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         Color itemColor = itemColors[index % itemColors.length];
         String itemName = gridItems[index];
+        IconData itemIcon;
+
+        // Assign icons based on item names (customize as needed)
+        if (itemName == 'Extract Images') {
+          itemIcon = Icons.image;
+        } else if (itemName == 'Create Story') {
+          itemIcon = Icons.edit;
+        } else if (itemName == 'Story Lists') {
+          itemIcon = Icons.view_list;
+        } else if (itemName == 'All Stories') {
+          itemIcon = Icons.library_books;
+        } else {
+          itemIcon = Icons.extension; // Default icon
+        }
 
         return GestureDetector(
           onTap: () {
             _handleGridItemClick(context, itemName);
           },
-          child: GridTile(
-            child: Container(
-              decoration: BoxDecoration(
-                color: itemColor,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Center(
-                child: Text(
-                  itemName,
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
+          child: Card(
+            elevation: 4.0,
+            margin: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            color: itemColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    itemIcon,
+                    color: Colors.white,
+                    size: 40, // Adjust the icon size as needed
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    itemName,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         );
       },
     );
+
   }
 
   void _handleGridItemClick(BuildContext context, String itemName) {
@@ -89,9 +160,14 @@ class DashboardGrid extends StatelessWidget {
           builder: (context) => StoryListPage(userId: userId), // Navigate to CreateStory with userId
         ),
       );
-    } else if (itemName == 'Item 3') {
-      // Handle navigation to Item 3
-    } else if (itemName == 'Item 4') {
+    } else if (itemName == 'All Stories') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AllStories(), // Navigate to CreateStory with userId
+        ),
+      );
+    } else if (itemName == 'Extract Images') {
       // Handle navigation to Item 4
     }
   }
@@ -198,4 +274,3 @@ Future<String?> getUserNameFromSharedPreferences() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('userName');
 }
-
