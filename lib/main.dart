@@ -7,6 +7,8 @@ import 'package:adult_story_book/screens/recording_lists.dart';
 import 'package:adult_story_book/screens/social_media.dart';
 import 'package:adult_story_book/screens/create_story.dart';
 import 'package:adult_story_book/screens/all_stories.dart';
+import 'package:adult_story_book/screens/image_to_text.dart';
+
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -20,6 +22,7 @@ void main() {
       'recording_lists': (context) => AttractiveListViewScreen(),
       'social_media': (context) => StoryBoard(),
       'all_stories': (context) => AllStories(),
+      //'images': (context) => ImageToTextConverter(),
     },
   ));
 }

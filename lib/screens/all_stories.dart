@@ -23,6 +23,10 @@ class Story {
   }
 }
 
+void main() {
+  runApp(AllStories());
+}
+
 class AllStories extends StatefulWidget {
   @override
   _AllStoriesState createState() => _AllStoriesState();
@@ -32,6 +36,7 @@ class _AllStoriesState extends State<AllStories> {
   List<Story> stories = [];
   TextEditingController searchController = TextEditingController();
   FlutterTts flutterTts = FlutterTts(); // Initialize FlutterTts
+  bool isDarkMode = false; // Track dark mode state
 
   @override
   void initState() {
@@ -68,9 +73,7 @@ class _AllStoriesState extends State<AllStories> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Story Viewer',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: isDarkMode ? ThemeData.dark() : ThemeData.light(), // Use dark theme when isDarkMode is true
       home: Scaffold(
         appBar: AppBar(
           title: Text('Story Viewer'),
@@ -94,9 +97,8 @@ class _AllStoriesState extends State<AllStories> {
                 itemCount: filteredStories().length,
                 itemBuilder: (context, index) {
                   final story = filteredStories()[index];
-                  return ListTile(
-                    title: Text(story.title),
-                    subtitle: Text(story.genre),
+                  return StoryCard(
+                    story: story,
                     onTap: () {
                       // Navigate to the StoryDetail screen
                       Navigator.of(context).push(
@@ -110,6 +112,49 @@ class _AllStoriesState extends State<AllStories> {
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              isDarkMode = !isDarkMode; // Toggle dark mode
+            });
+          },
+          child: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode), // Change icon based on mode
+        ),
+      ),
+    );
+  }
+}
+
+class StoryCard extends StatelessWidget {
+  final Story story;
+  final VoidCallback onTap;
+
+  StoryCard({required this.story, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4.0,
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                story.title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                story.genre,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -128,6 +173,11 @@ class StoryDetail extends StatefulWidget {
 
 class _StoryDetailState extends State<StoryDetail> {
   double fontSize = 16.0;
+  bool readingMode = false;
+  int currentPage = 0;
+  int maxPages = 0;
+  bool isDarkMode = false;
+  bool isPlaying = false; // Track TTS playback state
 
   void increaseFontSize() {
     setState(() {
@@ -141,8 +191,74 @@ class _StoryDetailState extends State<StoryDetail> {
     });
   }
 
+  void toggleReadingMode() {
+    setState(() {
+      readingMode = !readingMode;
+    });
+  }
+
+  void nextPage() {
+    if (currentPage < maxPages - 1) {
+      setState(() {
+        currentPage++;
+      });
+    }
+  }
+
+  void previousPage() {
+    if (currentPage > 0) {
+      setState(() {
+        currentPage--;
+      });
+    }
+  }
+
+  Future<void> toggleTTS() async {
+    if (isPlaying) {
+      // Stop TTS playback
+      await widget.flutterTts.stop();
+    } else {
+      // Start TTS playback
+      await widget.flutterTts.speak(pages[currentPage]);
+    }
+
+    setState(() {
+      isPlaying = !isPlaying;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    splitContentIntoPages();
+  }
+
+  List<String> pages = [];
+
+  void splitContentIntoPages() {
+    final content = widget.story.content;
+    final words = content.split(' '); // Split content into words
+    final maxWordsPerPage = 200; // Adjust this value for the desired page length
+    int start = 0;
+
+    while (start < words.length) {
+      int end = start + maxWordsPerPage;
+      if (end > words.length) {
+        end = words.length;
+      }
+
+      final page = words.sublist(start, end).join(' ');
+      pages.add(page);
+
+      start = end;
+    }
+    maxPages = pages.length;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final contentText = currentPage < pages.length ? pages[currentPage] : '';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.story.title),
@@ -152,67 +268,109 @@ class _StoryDetailState extends State<StoryDetail> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.story.title,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Text(
-              widget.story.genre,
-              style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),
-            ),
-            SizedBox(height: 16),
-            Text(
-              widget.story.content,
-              style: TextStyle(fontSize: fontSize), // Adjustable font size
-            ),
-            SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    // Start speaking the content
-                    await widget.flutterTts.speak(widget.story.content);
+                    // Toggle dark mode
+                    setState(() {
+                      isDarkMode = !isDarkMode;
+                    });
                   },
-                  child: Text('Listen to Content'),
+                  child: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
                 ),
-                SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: () async {
-                    // Stop speaking
-                    await widget.flutterTts.stop();
-                  },
-                  child: Text('Stop Listening'),
+                  onPressed: toggleTTS,
+                  child: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
+                ),
+              ],
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+
+
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      increaseFontSize();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white, // Set button background color to white
+                    ),
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.green, // Set icon color to green
+                    ),
+                    label: Text(
+                      'Increase Font Size',
+                      style: TextStyle(
+                        color: Colors.green, // Set text color to green
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      decreaseFontSize();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white, // Set button background color to white
+                    ),
+                    icon: Icon(
+                      Icons.remove,
+                      color: Colors.red, // Set icon color to red
+                    ),
+                    label: Text(
+                      'Decrease Font Size  ',
+                      style: TextStyle(
+                        color: Colors.red, // Set text color to red
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: toggleReadingMode,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: readingMode ? Colors.blue : Colors.transparent,
+                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: isDarkMode ? Colors.black : Colors.white, // Background color based on mode
+                ),
+                padding: EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Text(
+                    contentText,
+                    style: TextStyle(fontSize: fontSize, color: isDarkMode ? Colors.white : Colors.black), // Text color based on mode
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: previousPage,
+                  child: Text('Previous Page'),
+                ),
+                ElevatedButton(
+                  onPressed: nextPage,
+                  child: Text('Next Page'),
                 ),
               ],
             ),
             SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    increaseFontSize();
-                  },
-                  child: Text('Increase Font Size'),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    decreaseFontSize();
-                  },
-                  child: Text('Decrease Font Size'),
-                ),
-              ],
-            ),
           ],
         ),
       ),
     );
   }
-}
-
-void main() {
-  runApp(AllStories());
 }

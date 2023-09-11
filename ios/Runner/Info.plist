@@ -53,5 +53,9 @@
     <string>Recognition and display input</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Defect speech input</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Requesting access to your photo library to pick images.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Requesting access to your camera to take pictures.</string>
 </dict>
 </plist>

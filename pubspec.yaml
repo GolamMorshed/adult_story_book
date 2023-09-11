@@ -32,7 +32,11 @@ dependencies:
     sdk: flutter
   speech_to_text: ^5.4.0
   flutter_tts: ^3.8.2
-#  text_to_speech: ^3.8.2
+  share: ^2.0.1
+  file_picker: ^4.0.0
+#  firebase_core: ^2.15.1
+#  google_ml_kit: ^0.16.2
+  image_picker: ^0.8.4+4
   http: ^0.13.3
   shared_preferences: ^2.0.8
 
