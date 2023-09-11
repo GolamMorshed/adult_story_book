@@ -12,12 +12,12 @@ import 'package:adult_story_book/screens/image_to_text.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'all_stories',
+    initialRoute: 'login',
     routes: {
       'login': (context) => LoginScreen(),
       'registration': (context) => Registration(),
-      'dashboard': (context) => Dashboard(),
-      'create_story': (context) => MyApp(),
+      // 'dashboard': (context) => DashboardApp(),
+      // 'create_story': (context) => MyApp(),
       'speech_to_text': (context) => SpeechToTextScreen(),
       'recording_lists': (context) => AttractiveListViewScreen(),
       'social_media': (context) => StoryBoard(),

@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences package
-
-void main() {
-  runApp(MyApp());
-}
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MyApp extends StatelessWidget {
+  final String userId; // Add userId parameter
+
+  MyApp({required this.userId});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,12 +17,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: StoryInputPage(),
+      home: StoryInputPage(userId: userId,),
     );
   }
 }
 
 class StoryInputPage extends StatefulWidget {
+  final String userId;
+  StoryInputPage({required this.userId});
   @override
   _StoryInputPageState createState() => _StoryInputPageState();
 }
@@ -75,22 +78,12 @@ class _StoryInputPageState extends State<StoryInputPage> {
       String title = titleController.text;
       String genre = selectedGenre ?? '';
       String story = _text;
+      print(widget.userId);
+      final apiUrl = 'http://127.0.0.1:8000/api/stories';
 
       print(title);
       print(genre);
       print(story);
-
-      // Get user_id from SharedPreferences
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // int? userId = prefs.getInt('user_id');
-
-      // if (userId == null) {
-      //   // Handle the case where user_id is not available
-      //   print('User ID not found in SharedPreferences');
-      //   return;
-      // }
-
-      final apiUrl = 'http://127.0.0.1:8000/api/stories';
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -98,7 +91,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          // 'user_id': 1,
+          'user_id': widget.userId.toString(),
           'title': title,
           'genre': genre,
           'content': story,
@@ -106,10 +99,33 @@ class _StoryInputPageState extends State<StoryInputPage> {
         }),
       );
 
+
       if (response.statusCode == 201) {
-        print('Story saved successfully');
+        titleController.clear();
+        setState(() {
+          _text = ''; // Clear the story input field
+        });
+
+        print('Story saved successfully'); Fluttertoast.showToast(
+          msg: 'Story saved successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+
+
+
       } else {
+        Fluttertoast.showToast(
+          msg: 'Failed to save the story. Status Code: ${response.statusCode}',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
         print('Failed to save the story. Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
       }
     }
   }
@@ -196,6 +212,12 @@ class _StoryInputPageState extends State<StoryInputPage> {
                   Expanded(
                     child: TextFormField(
                       controller: TextEditingController(text: _text),
+                      onChanged: (value) {
+                        setState(() {
+                          _text = value;
+                        });
+                      },
+
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Story is required';

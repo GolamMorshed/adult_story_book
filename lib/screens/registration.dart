@@ -6,6 +6,8 @@ import 'package:adult_story_book/screens/login.dart';
 import 'package:adult_story_book/screens/forgotpassword.dart';
 
 class Registration extends StatelessWidget {
+
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -127,6 +129,39 @@ class _RegistrationPageState extends State<RegistrationPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: <InlineSpan>[
+                  TextSpan(
+                    text: 'Welcome to Storybook. \n',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  WidgetSpan(
+                    child: SizedBox(height: 40), // Adjust the height as needed
+                  ),
+                  TextSpan(
+                    text: 'Please register to the system to share your story.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.grey, // You can adjust the color as needed
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            Image.network(
+              'https://thegreen.studio/saiful/study.png', // Replace with your image URL
+              width: 200, // Adjust the width as needed
+              height: 200, // Adjust the height as needed
+              fit: BoxFit.cover, // Adjust the fit as needed
+            ),
             TextField(
               controller: _nameController,
               decoration: InputDecoration(

@@ -1,8 +1,33 @@
 import 'dart:convert';
 import 'package:adult_story_book/screens/dashboard.dart';
+import 'package:adult_story_book/screens/registration.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+void main() {
+  runApp(
+    MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        brightness: Brightness.light, // Set the default theme to light
+        // Define your light theme colors here
+        // For example:
+        // primaryColor: Colors.blue,
+        // accentColor: Colors.green,
+      ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.blue,
+        brightness: Brightness.dark, // Set the dark theme
+        // Define your dark theme colors here
+        // For example:
+        // primaryColor: Colors.indigo,
+        // accentColor: Colors.amber,
+      ),
+      themeMode: ThemeMode.system, // Use system settings for light/dark mode
+      home: LoginScreen(),
+    ),
+  );
+}
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -20,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -27,6 +53,39 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: <InlineSpan>[
+                  TextSpan(
+                    text: 'Welcome to Storybook. \n',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  WidgetSpan(
+                    child: SizedBox(height: 40), // Adjust the height as needed
+                  ),
+                  TextSpan(
+                    text: 'Please login to the system to share your story.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.grey, // You can adjust the color as needed
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            Image.network(
+              'https://thegreen.studio/saiful/study.png', // Replace with your image URL
+              width: 200, // Adjust the width as needed
+              height: 200, // Adjust the height as needed
+              fit: BoxFit.cover, // Adjust the fit as needed
+            ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
@@ -42,10 +101,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _login,
-              child: Text('Login'),
+            Container(
+              width: double.infinity, // Make the button take up full width
+              child: ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.all(16),
+                ),
+                child: Text(
+                  'Login',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
             ),
+
             if (_loginFailed)
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -54,6 +123,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(color: Colors.red),
                 ),
               ),
+
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Registration(),
+                      ),
+                    );
+                  },
+                  child: Text('Already have an account? Sign In'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Navigate to the forgot password screen
+                  },
+                  child: Text('Forgot Password'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -79,21 +172,21 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       // Successful login
       final Map<String, dynamic> data = jsonDecode(response.body);
-      print(data);
+
 
       // Check if 'user' field is present and it's a Map
       if (data.containsKey('user') && data['user'] is Map<String, dynamic>) {
         Map<String, dynamic> userData = data['user'] as Map<String, dynamic>;
         print('Login successful. User ID: ${userData['id']}');
 
-        // Extract the user ID from the response data
+        // Extract the user ID and name from the response data
         String userId = userData['id'].toString();
-
+        String userName = userData['name'].toString();
         //Navigate to the Dashboard screen with the userId
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DashboardApp(userId: userId),
+            builder: (context) => Dashboard(userId: userId,userName: userName),
           ),
         );
 
@@ -113,10 +206,4 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: LoginScreen(),
-  ));
 }

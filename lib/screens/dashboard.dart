@@ -1,42 +1,26 @@
 import 'package:flutter/material.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
-void main() async {
-  // Retrieve the user ID from SharedPreferences
-  String? userId = await getUserIdFromSharedPreferences();
-  runApp(DashboardApp(userId: userId ?? ""));
-}
-
-
-class DashboardApp extends StatelessWidget {
-  final String userId;
-  DashboardApp({required this.userId});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dashboard App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-
-    );
-  }
-}
+import 'package:adult_story_book/screens/create_story.dart';
 
 class Dashboard extends StatelessWidget {
+  final String userId;
+  final String userName;
+  Dashboard({required this.userId, required this.userName});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Dashboard'),
       ),
-      drawer: Sidebar(),
-      body: DashboardGrid(),
+      drawer: Sidebar(userName: userName),
+      body: DashboardGrid(userId: userId),
     );
   }
 }
 
 class DashboardGrid extends StatelessWidget {
+  final String userId;
   final List<String> gridItems = [
     'Create Story',
     'Story Lists',
@@ -51,27 +35,36 @@ class DashboardGrid extends StatelessWidget {
     Colors.orange,
   ];
 
+  DashboardGrid({required this.userId});
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
+        crossAxisSpacing: 12.0,
+        mainAxisSpacing: 12.0,
       ),
       itemCount: gridItems.length,
       itemBuilder: (context, index) {
         Color itemColor = itemColors[index % itemColors.length];
-        return GridTile(
-          child: Container(
-            decoration: BoxDecoration(
-              color: itemColor,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Center(
-              child: Text(
-                gridItems[index],
-                style: TextStyle(color: Colors.white, fontSize: 18),
+        String itemName = gridItems[index];
+
+        return GestureDetector(
+          onTap: () {
+            _handleGridItemClick(context, itemName);
+          },
+          child: GridTile(
+            child: Container(
+              decoration: BoxDecoration(
+                color: itemColor,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Center(
+                child: Text(
+                  itemName,
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
             ),
           ),
@@ -79,9 +72,29 @@ class DashboardGrid extends StatelessWidget {
       },
     );
   }
+
+  void _handleGridItemClick(BuildContext context, String itemName) {
+    if (itemName == 'Create Story') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyApp(userId: userId), // Navigate to CreateStory with userId
+        ),
+      );
+    } else if (itemName == 'Story Lists') {
+      // Handle navigation to Story Lists
+    } else if (itemName == 'Item 3') {
+      // Handle navigation to Item 3
+    } else if (itemName == 'Item 4') {
+      // Handle navigation to Item 4
+    }
+  }
 }
 
 class Sidebar extends StatelessWidget {
+  final String userName;
+  Sidebar({required this.userName});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -92,19 +105,23 @@ class Sidebar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
-            child: Text(
-              'Image and Name',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
             ),
           ),
           ListTile(
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              // Handle the Home navigation here
               Navigator.pop(context);
             },
           ),
@@ -112,7 +129,6 @@ class Sidebar extends StatelessWidget {
             leading: Icon(Icons.settings),
             title: Text('Settings'),
             onTap: () {
-              // Handle the Settings navigation here
               Navigator.pop(context);
             },
           ),
@@ -120,7 +136,6 @@ class Sidebar extends StatelessWidget {
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () {
-              // Clear userId when logging out
               clearUserIdInSharedPreferences();
               Navigator.pop(context);
             },
@@ -131,6 +146,33 @@ class Sidebar extends StatelessWidget {
   }
 }
 
+void clearUserIdInSharedPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('userId');
+}
+
+void main() async {
+  String? userId = await getUserIdFromSharedPreferences();
+  String? userName = await getUserNameFromSharedPreferences();
+  runApp(DashboardApp(userId: userId ?? "", userName: userName ?? ""));
+}
+
+class DashboardApp extends StatelessWidget {
+  final String userId;
+  final String userName;
+  DashboardApp({required this.userId, required this.userName});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Dashboard App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: Dashboard(userId: userId, userName: userName),
+    );
+  }
+}
+
+// SharedPreferences functions for userId and userName
 void saveUserIdToSharedPreferences(String userId) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('userId', userId);
@@ -141,7 +183,13 @@ Future<String?> getUserIdFromSharedPreferences() async {
   return prefs.getString('userId');
 }
 
-void clearUserIdInSharedPreferences() async {
+void saveUserNameToSharedPreferences(String userName) async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('userId');
+  await prefs.setString('userName', userName);
 }
+
+Future<String?> getUserNameFromSharedPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userName');
+}
+
