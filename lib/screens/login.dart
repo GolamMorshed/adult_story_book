@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Check if 'user' field is present and it's a Map
       if (data.containsKey('user') && data['user'] is Map<String, dynamic>) {
         Map<String, dynamic> userData = data['user'] as Map<String, dynamic>;
-        print('Login successful. User ID: ${userData['id']}');
+        // print('Login successful. User ID: ${userData['id']}');
 
         // Extract the user ID and name from the response data
         String userId = userData['id'].toString();

@@ -1,3 +1,4 @@
+import 'package:adult_story_book/screens/story_list.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
@@ -82,7 +83,12 @@ class DashboardGrid extends StatelessWidget {
         ),
       );
     } else if (itemName == 'Story Lists') {
-      // Handle navigation to Story Lists
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StoryListPage(userId: userId), // Navigate to CreateStory with userId
+        ),
+      );
     } else if (itemName == 'Item 3') {
       // Handle navigation to Item 3
     } else if (itemName == 'Item 4') {
