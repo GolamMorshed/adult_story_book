@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class Story {
   final String title;
@@ -23,10 +24,6 @@ class Story {
   }
 }
 
-void main() {
-  runApp(AllStories());
-}
-
 class AllStories extends StatefulWidget {
   @override
   _AllStoriesState createState() => _AllStoriesState();
@@ -34,6 +31,7 @@ class AllStories extends StatefulWidget {
 
 class _AllStoriesState extends State<AllStories> {
   List<Story> stories = [];
+
   TextEditingController searchController = TextEditingController();
   FlutterTts flutterTts = FlutterTts(); // Initialize FlutterTts
   bool isDarkMode = false; // Track dark mode state
@@ -73,7 +71,7 @@ class _AllStoriesState extends State<AllStories> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Story Viewer',
-      theme: isDarkMode ? ThemeData.dark() : ThemeData.light(), // Use dark theme when isDarkMode is true
+      theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
         appBar: AppBar(
           title: Text('Story Viewer'),
@@ -100,7 +98,6 @@ class _AllStoriesState extends State<AllStories> {
                   return StoryCard(
                     story: story,
                     onTap: () {
-                      // Navigate to the StoryDetail screen
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => StoryDetail(story: story, flutterTts: flutterTts),
@@ -116,10 +113,10 @@ class _AllStoriesState extends State<AllStories> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             setState(() {
-              isDarkMode = !isDarkMode; // Toggle dark mode
+              isDarkMode = !isDarkMode;
             });
           },
-          child: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode), // Change icon based on mode
+          child: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
         ),
       ),
     );
@@ -178,6 +175,21 @@ class _StoryDetailState extends State<StoryDetail> {
   int maxPages = 0;
   bool isDarkMode = false;
   bool isPlaying = false; // Track TTS playback state
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    splitContentIntoPages();
+    _speech = stt.SpeechToText();
+  }
+
+  @override
+  void dispose() {
+    _speech.stop();
+    super.dispose();
+  }
 
   void increaseFontSize() {
     setState(() {
@@ -225,20 +237,38 @@ class _StoryDetailState extends State<StoryDetail> {
     setState(() {
       isPlaying = !isPlaying;
     });
+
+    if (_isListening) {
+      // Stop voice recognition
+      _speech.stop();
+    } else {
+      // Start voice recognition
+      _speech.listen(
+        onResult: (result) {
+          if (result.finalResult) {
+            handleVoiceCommand(result.recognizedWords);
+            _speech.stop();
+          }
+        },
+      );
+    }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    splitContentIntoPages();
+  void handleVoiceCommand(String command) {
+    if (command.toLowerCase().contains('next')) {
+      nextPage();
+    } else if (command.toLowerCase().contains('previous')) {
+      previousPage();
+    }
   }
+
 
   List<String> pages = [];
 
   void splitContentIntoPages() {
     final content = widget.story.content;
-    final words = content.split(' '); // Split content into words
-    final maxWordsPerPage = 200; // Adjust this value for the desired page length
+    final words = content.split(' ');
+    final maxWordsPerPage = 150;
     int start = 0;
 
     while (start < words.length) {
@@ -291,23 +321,21 @@ class _StoryDetailState extends State<StoryDetail> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
-
                   ElevatedButton.icon(
                     onPressed: () {
                       increaseFontSize();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.white, // Set button background color to white
+                      primary: Colors.white,
                     ),
                     icon: Icon(
                       Icons.add,
-                      color: Colors.green, // Set icon color to green
+                      color: Colors.green,
                     ),
                     label: Text(
                       'Increase Font Size',
                       style: TextStyle(
-                        color: Colors.green, // Set text color to green
+                        color: Colors.green,
                       ),
                     ),
                   ),
@@ -317,20 +345,19 @@ class _StoryDetailState extends State<StoryDetail> {
                       decreaseFontSize();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.white, // Set button background color to white
+                      primary: Colors.white,
                     ),
                     icon: Icon(
                       Icons.remove,
-                      color: Colors.red, // Set icon color to red
+                      color: Colors.red,
                     ),
                     label: Text(
-                      'Decrease Font Size  ',
+                      'Decrease Font Size',
                       style: TextStyle(
-                        color: Colors.red, // Set text color to red
+                        color: Colors.red,
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -342,13 +369,13 @@ class _StoryDetailState extends State<StoryDetail> {
                     color: readingMode ? Colors.blue : Colors.transparent,
                   ),
                   borderRadius: BorderRadius.circular(8.0),
-                  color: isDarkMode ? Colors.black : Colors.white, // Background color based on mode
+                  color: isDarkMode ? Colors.black : Colors.white,
                 ),
                 padding: EdgeInsets.all(16.0),
                 child: SingleChildScrollView(
                   child: Text(
                     contentText,
-                    style: TextStyle(fontSize: fontSize, color: isDarkMode ? Colors.white : Colors.black), // Text color based on mode
+                    style: TextStyle(fontSize: fontSize, color: isDarkMode ? Colors.white : Colors.black),
                   ),
                 ),
               ),
@@ -373,4 +400,8 @@ class _StoryDetailState extends State<StoryDetail> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(AllStories());
 }
