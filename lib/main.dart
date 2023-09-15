@@ -22,7 +22,7 @@ void main() {
       'recording_lists': (context) => AttractiveListViewScreen(),
       'social_media': (context) => StoryBoard(),
       'all_stories': (context) => AllStories(),
-      'images': (context) => ImageToText(),
+      // 'images': (context) => ImageToText(),
     },
   ));
 }

@@ -1,20 +1,25 @@
 import 'dart:io';
+import 'package:adult_story_book/screens/save_story.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(ImageToText());
+
 
 class ImageToText extends StatelessWidget {
+  final String userId;
+  ImageToText({required this.userId});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: TextExtractor(),
+      home: TextExtractor(userId:userId),
     );
   }
 }
 
 class TextExtractor extends StatefulWidget {
+  final String userId;
+  TextExtractor({required this.userId});
   @override
   _TextExtractorState createState() => _TextExtractorState();
 }
@@ -52,14 +57,13 @@ class _TextExtractorState extends State<TextExtractor> {
         text += '\n';
       }
 
-      // Append the extracted text to the existing text in the TextField.
       extractedTextController.text += text;
     }
   }
 
   @override
   void dispose() {
-    // Dispose of the TextRecognizer and TextEditingController when they're no longer needed.
+
     textRecognizer.close();
     extractedTextController.dispose();
     super.dispose();
@@ -102,17 +106,17 @@ class _TextExtractorState extends State<TextExtractor> {
               child: Text('Select Image'),
             ),
             SizedBox(height: 16),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (context) => SaveStoryPage(userId: userId,story: story),
-            //       ),
-            //     );
-            //   },
-            //   child: Text('Save Story'),
-            // ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SaveStoryPage(userId: widget.userId,story: extractedTextController.text),
+                  ),
+                );
+              },
+              child: Text('Save Story'),
+            ),
             SizedBox(height: 16),
             TextField(
               controller: extractedTextController,

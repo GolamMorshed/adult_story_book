@@ -1,3 +1,4 @@
+import 'package:adult_story_book/screens/image_to_text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
@@ -168,7 +169,12 @@ class DashboardGrid extends StatelessWidget {
         ),
       );
     } else if (itemName == 'Extract Images') {
-      // Handle navigation to Item 4
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageToText(userId: userId), // Navigate to CreateStory with userId
+        ),
+      );
     }
   }
 }
