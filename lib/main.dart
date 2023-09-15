@@ -12,7 +12,7 @@ import 'package:adult_story_book/screens/image_to_text.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'login',
+    initialRoute: 'images',
     routes: {
       'login': (context) => LoginScreen(),
       'registration': (context) => Registration(),
@@ -22,7 +22,7 @@ void main() {
       'recording_lists': (context) => AttractiveListViewScreen(),
       'social_media': (context) => StoryBoard(),
       'all_stories': (context) => AllStories(),
-      //'images': (context) => ImageToTextConverter(),
+      'images': (context) => ImageToText(),
     },
   ));
 }
