@@ -20,46 +20,48 @@ class TextExtractor extends StatefulWidget {
 }
 
 class _TextExtractorState extends State<TextExtractor> {
-  File? selectedImage;
-  String extractedText = '';
+  List<File?> selectedImages = [];
+  TextEditingController extractedTextController = TextEditingController();
   TextRecognizer textRecognizer = GoogleMlKit.vision.textRecognizer();
 
   Future<void> _selectAndExtractImage() async {
     final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
 
-    if (pickedFile == null) {
-      return;
-    }
+    while (true) {
+      final pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
 
-    final imageFile = File(pickedFile.path);
-
-    setState(() {
-      selectedImage = imageFile;
-      extractedText = 'Extracting text...';
-    });
-
-    final inputImage = InputImage.fromFile(imageFile);
-    final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
-
-    String text = '';
-
-    for (final block in recognizedText.blocks) {
-      for (final line in block.lines) {
-        text += line.text + ' ';
+      if (pickedFile == null) {
+        break; // Exit the loop if the user cancels image selection.
       }
-      text += '\n';
-    }
 
-    setState(() {
-      extractedText = text;
-    });
+      final imageFile = File(pickedFile.path);
+
+      setState(() {
+        selectedImages.add(imageFile);
+      });
+
+      final inputImage = InputImage.fromFile(imageFile);
+      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+
+      String text = '';
+
+      for (final block in recognizedText.blocks) {
+        for (final line in block.lines) {
+          text += line.text + ' ';
+        }
+        text += '\n';
+      }
+
+      // Append the extracted text to the existing text in the TextField.
+      extractedTextController.text += text;
+    }
   }
 
   @override
   void dispose() {
-    // Dispose of the TextRecognizer when it's no longer needed.
+    // Dispose of the TextRecognizer and TextEditingController when they're no longer needed.
     textRecognizer.close();
+    extractedTextController.dispose();
     super.dispose();
   }
 
@@ -73,21 +75,41 @@ class _TextExtractorState extends State<TextExtractor> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            selectedImage != null
-                ? Image.file(selectedImage!)
-                : Text('Select an image from the gallery to extract text.'),
+            selectedImages.isNotEmpty
+                ? Expanded(
+              child: ListView.builder(
+                itemCount: selectedImages.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      Image.file(selectedImages[index]!),
+                      SizedBox(height: 8),
+                      // Text(
+                      //   'Extracted Text:',
+                      //   style: TextStyle(fontWeight: FontWeight.bold),
+                      // ),
+                      SizedBox(height: 8),
+                      Text(extractedTextController.text),
+                    ],
+                  );
+                },
+              ),
+            )
+                : Text('Select images from the gallery to extract text.'),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _selectAndExtractImage,
               child: Text('Select Image'),
             ),
             SizedBox(height: 16),
-            Text(
-              'Extracted Text:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            TextField(
+              controller: extractedTextController,
+              decoration: InputDecoration(
+                labelText: 'Extracted Text',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: null, // Allows multiple lines in the TextField.
             ),
-            SizedBox(height: 8),
-            Text(extractedText),
           ],
         ),
       ),
