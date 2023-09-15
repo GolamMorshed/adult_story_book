@@ -88,8 +88,8 @@ class _TextExtractorState extends State<TextExtractor> {
                       //   'Extracted Text:',
                       //   style: TextStyle(fontWeight: FontWeight.bold),
                       // ),
-                      SizedBox(height: 8),
-                      Text(extractedTextController.text),
+                      // SizedBox(height: 8),
+                      // Text(extractedTextController.text),
                     ],
                   );
                 },
@@ -101,6 +101,18 @@ class _TextExtractorState extends State<TextExtractor> {
               onPressed: _selectAndExtractImage,
               child: Text('Select Image'),
             ),
+            SizedBox(height: 16),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => SaveStoryPage(userId: userId,story: story),
+            //       ),
+            //     );
+            //   },
+            //   child: Text('Save Story'),
+            // ),
             SizedBox(height: 16),
             TextField(
               controller: extractedTextController,
@@ -116,3 +128,5 @@ class _TextExtractorState extends State<TextExtractor> {
     );
   }
 }
+
+
