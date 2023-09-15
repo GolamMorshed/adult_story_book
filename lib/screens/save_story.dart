@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'story_list.dart'; // Import your story list page
 
 class SaveStoryPage extends StatefulWidget {
   final String userId;
@@ -51,10 +52,10 @@ class _SaveStoryPageState extends State<SaveStoryPage> {
     );
 
     if (response.statusCode == 201) {
-      // Story successfully saved, you can handle the success here.
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Story saved successfully!'),
+      // Story successfully saved, navigate to the story list page.
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => StoryListPage(userId: widget.userId), // Replace with your story list page.
         ),
       );
     } else {
