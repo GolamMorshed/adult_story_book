@@ -36,7 +36,7 @@ class _TextExtractorState extends State<TextExtractor> {
       final pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
 
       if (pickedFile == null) {
-        break; // Exit the loop if the user cancels image selection.
+        break;
       }
 
       final imageFile = File(pickedFile.path);
@@ -73,7 +73,13 @@ class _TextExtractorState extends State<TextExtractor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Image to Text Converter'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Use any icon you like
+          onPressed: () {
+            Navigator.of(context).pop(); // Navigate back when the button is pressed
+          },
+        ),
+        title: Text('Image Extractor'),
       ),
       body: Center(
         child: Column(
