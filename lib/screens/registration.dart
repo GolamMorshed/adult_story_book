@@ -123,6 +123,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Registration Page'),
+        backgroundColor: Colors.black87,
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -198,16 +199,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
               child: ElevatedButton(
                 onPressed: _register,
                 child: Text('Register'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black, // Set the background color to black
+                ),
               ),
             ),
             SizedBox(height: 16),
             TextButton(
               onPressed: _navigateToLogin,
-              child: Text('Already have an account? Login'),
+              child: Text('Already have an account? Login',style: TextStyle(
+                color: Colors.black, // Set text color to black
+              ),),
             ),
             TextButton(
               onPressed: _forgotPassword,
-              child: Text('Forgot Password?'),
+              child: Text('Forgot Password?',style: TextStyle(
+                color: Colors.black, // Set text color to black
+              ),),
             ),
           ],
         ),

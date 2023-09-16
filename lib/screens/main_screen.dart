@@ -38,7 +38,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
 
   TextEditingController searchController = TextEditingController();
   FlutterTts flutterTts = FlutterTts(); // Initialize FlutterTts
-  bool isDarkMode = false; // Track dark mode state
+  bool isDarkMode = true; // Track dark mode state
   bool isLoggedIn = false; // Track login state
 
 

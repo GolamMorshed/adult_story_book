@@ -7,23 +7,7 @@ import 'package:http/http.dart' as http;
 void main() {
   runApp(
     MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.light, // Set the default theme to light
-        // Define your light theme colors here
-        // For example:
-        // primaryColor: Colors.blue,
-        // accentColor: Colors.green,
-      ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.dark, // Set the dark theme
-        // Define your dark theme colors here
-        // For example:
-        // primaryColor: Colors.indigo,
-        // accentColor: Colors.amber,
-      ),
-      themeMode: ThemeMode.system, // Use system settings for light/dark mode
+      theme: ThemeData.dark(),
       home: LoginScreen(),
     ),
   );
@@ -45,8 +29,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
-        backgroundColor: Colors.blue,
+
+        backgroundColor: Colors.black87,
       ),
+
+      // backgroundColor: Colors.brown,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -107,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.all(16),
+                  primary: Colors.black,
                 ),
                 child: Text(
                   'Login',
@@ -137,13 +125,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                  child: Text('Already have an account? Sign In'),
+                  child: Text('Already have an account? Sign In',
+                    style: TextStyle(
+                      color: Colors.black, // Set text color to black
+                    ),),
                 ),
                 TextButton(
                   onPressed: () {
                     // Navigate to the forgot password screen
                   },
-                  child: Text('Forgot Password'),
+                  child: Text('Forgot Password',style: TextStyle(
+    color: Colors.black, // Set text color to black
+    ),),
                 ),
               ],
             ),
@@ -194,7 +187,6 @@ class _LoginScreenState extends State<LoginScreen> {
           _loginFailed = false;
         });
       } else {
-        // 'user' field is missing or not a Map
         setState(() {
           _loginFailed = true;
         });
