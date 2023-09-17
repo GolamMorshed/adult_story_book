@@ -4,9 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share/share.dart';
-
-
-import 'login.dart';
+import 'package:translator/translator.dart';
 
 class Story {
   final String title;
@@ -37,10 +35,9 @@ class _StoryDashboardState extends State<StoryDashboard> {
   List<Story> stories = [];
 
   TextEditingController searchController = TextEditingController();
-  FlutterTts flutterTts = FlutterTts(); // Initialize FlutterTts
-  bool isDarkMode = true; // Track dark mode state
-  bool isLoggedIn = false; // Track login state
-
+  FlutterTts flutterTts = FlutterTts();
+  bool isDarkMode = true;
+  bool isLoggedIn = false;
 
   @override
   void initState() {
@@ -55,7 +52,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonData = jsonDecode(response.body);
 
-      final storiesList = jsonData['data']; // Assuming the stories are nested under a 'data' key
+      final storiesList = jsonData['data'];
 
       setState(() {
         stories = storiesList.map<Story>((json) => Story.fromJson(json)).toList();
@@ -66,7 +63,6 @@ class _StoryDashboardState extends State<StoryDashboard> {
   }
 
   List<Story> getFilteredStories(String query) {
-    // Filter the stories based on the search query
     return stories.where((story) {
       final title = story.title.toLowerCase();
       final genre = story.genre.toLowerCase();
@@ -86,7 +82,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
       theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('                      Story Viewer'),
+          title: Text('Story Viewer'),
           actions: [
             IconButton(
               icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
@@ -109,12 +105,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
               IconButton(
                 icon: Icon(Icons.login),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(), // Navigate to CreateStory with userId
-                    ),
-                  );
+                  // Implement login functionality
                 },
               ),
           ],
@@ -136,9 +127,9 @@ class _StoryDashboardState extends State<StoryDashboard> {
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columns in the grid
-                  crossAxisSpacing: 16.0, // Spacing between columns
-                  mainAxisSpacing: 16.0, // Spacing between rows
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
                 ),
                 itemCount: searchController.text.isEmpty
                     ? stories.length
@@ -179,15 +170,15 @@ class StoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 200, // Set a fixed height here
+        height: 200,
         child: Card(
           elevation: 4.0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Center-align text vertically
-            crossAxisAlignment: CrossAxisAlignment.center, // Center-align text horizontally
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -231,13 +222,16 @@ class _StoryDetailState extends State<StoryDetail> {
   int currentPage = 0;
   int maxPages = 0;
   bool isDarkMode = false;
-  bool isPlaying = false; // Track TTS playback state
+  bool isPlaying = false;
   late stt.SpeechToText _speech;
   bool _isListening = false;
+  String currentTranslation = '';
+  GoogleTranslator translator = GoogleTranslator();
 
   _StoryDetailState() {
     _speech = stt.SpeechToText();
   }
+
   @override
   void initState() {
     super.initState();
@@ -287,10 +281,8 @@ class _StoryDetailState extends State<StoryDetail> {
 
   Future<void> toggleTTS() async {
     if (isPlaying) {
-      // Stop TTS playback
       await widget.flutterTts.stop();
     } else {
-      // Start TTS playback
       await widget.flutterTts.speak(pages[currentPage]);
     }
 
@@ -299,10 +291,8 @@ class _StoryDetailState extends State<StoryDetail> {
     });
 
     if (_isListening) {
-      // Stop voice recognition
       _speech.stop();
     } else {
-      // Start voice recognition
       _speech.listen(
         onResult: (result) {
           if (result.finalResult) {
@@ -344,13 +334,56 @@ class _StoryDetailState extends State<StoryDetail> {
     maxPages = pages.length;
   }
 
+  Future<void> translateContent(Locale targetLocale) async {
+    if (targetLocale == Locale('en')) {
+      setState(() {
+        currentTranslation = '';
+      });
+      return;
+    }
+
+    try {
+      final translation = await translator.translate(
+        pages[currentPage],
+        from: 'en',
+        to: targetLocale.languageCode,
+      );
+      setState(() {
+        currentTranslation = translation.text;
+      });
+    } catch (e) {
+      print('Translation error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final contentText = currentPage < pages.length ? pages[currentPage] : '';
+    final translatedText = currentTranslation.isNotEmpty ? currentTranslation : contentText;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.story.title),
+        actions: [
+          PopupMenuButton<Locale>(
+            onSelected: (Locale targetLocale) {
+              translateContent(targetLocale);
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<Locale>(
+                  value: Locale('en', 'US'),
+                  child: Text('English'),
+                ),
+                PopupMenuItem<Locale>(
+                  value: Locale('es', 'ES'),
+                  child: Text('Español'),
+                ),
+                // Add more languages as needed
+              ];
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -362,7 +395,6 @@ class _StoryDetailState extends State<StoryDetail> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    // Toggle dark mode
                     setState(() {
                       isDarkMode = !isDarkMode;
                     });
@@ -375,7 +407,8 @@ class _StoryDetailState extends State<StoryDetail> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Share.share('Check out this story: ${widget.story.title}\n\n${widget.story.content}');
+                    Share.share(
+                        'Check out this story: ${widget.story.title}\n\n${widget.story.content}');
                   },
                   child: Icon(Icons.share),
                 )
@@ -439,8 +472,11 @@ class _StoryDetailState extends State<StoryDetail> {
                 padding: EdgeInsets.all(16.0),
                 child: SingleChildScrollView(
                   child: Text(
-                    contentText,
-                    style: TextStyle(fontSize: fontSize, color: isDarkMode ? Colors.white : Colors.black),
+                    translatedText,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      color: isDarkMode ? Colors.white : Colors.black,
+                    ),
                   ),
                 ),
               ),
