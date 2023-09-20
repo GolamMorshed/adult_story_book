@@ -14,12 +14,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Create Story',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: StoryInputPage(userId: userId,),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Create Story'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop(); // Navigate back to the previous screen
+            },
+          ),
+        ),
+        body: StoryInputPage(userId: userId),
+      ),
     );
+
   }
 }
 
@@ -139,15 +150,15 @@ class _StoryInputPageState extends State<StoryInputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Create Story'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop(); // Navigate back to the previous screen
-          },
-        ),
-      ),
+      // appBar: AppBar(
+      //   // title: Text('Create Story'),
+      //   // leading: IconButton(
+      //   //   icon: Icon(Icons.arrow_back),
+      //   //   onPressed: () {
+      //   //     Navigator.of(context).pop(); // Navigate back to the previous screen
+      //   //   },
+      //   // ),
+      // ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -218,15 +229,39 @@ class _StoryInputPageState extends State<StoryInputPage> {
               // Replace TextFormField with a Row containing a TextFormField and a microphone button
               Row(
                 children: [
+                  // Expanded(
+                  //   child: TextFormField(
+                  //     controller: TextEditingController(text: _text),
+                  //     onChanged: (value) {
+                  //       setState(() {
+                  //         _text = value;
+                  //       });
+                  //     },
+                  //
+                  //     validator: (value) {
+                  //       if (value == null || value.isEmpty) {
+                  //         return 'Story is required';
+                  //       }
+                  //       return null;
+                  //     },
+                  //     maxLines: null, // Allows for multiple lines
+                  //     keyboardType: TextInputType.multiline,
+                  //
+                  //     decoration: InputDecoration(
+                  //
+                  //       hintText: 'Speak or type your story here (up to 1000 words)',
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  // ),
                   Expanded(
                     child: TextFormField(
-                      controller: TextEditingController(text: _text),
+                      controller: TextEditingController(text: _text), // Keep this line
                       onChanged: (value) {
                         setState(() {
-                          _text = value;
+                          _text = value; // This line will update the _text variable when the user types
                         });
                       },
-
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Story is required';
@@ -235,12 +270,16 @@ class _StoryInputPageState extends State<StoryInputPage> {
                       },
                       maxLines: null, // Allows for multiple lines
                       keyboardType: TextInputType.multiline,
+                      textDirection: TextDirection.ltr,
+                      textAlign: TextAlign.start,
                       decoration: InputDecoration(
                         hintText: 'Speak or type your story here (up to 1000 words)',
                         border: OutlineInputBorder(),
                       ),
                     ),
                   ),
+
+
                   IconButton(
                     icon: Icon(Icons.mic),
                     onPressed: _listen,

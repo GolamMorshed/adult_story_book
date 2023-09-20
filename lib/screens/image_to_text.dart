@@ -11,11 +11,13 @@ class ImageToText extends StatelessWidget {
   ImageToText({required this.userId});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: TextExtractor(userId:userId),
+    return Scaffold(
+
+      body: TextExtractor(userId: userId),
     );
   }
 }
+
 
 class TextExtractor extends StatefulWidget {
   final String userId;
@@ -73,12 +75,6 @@ class _TextExtractorState extends State<TextExtractor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back), // Use any icon you like
-          onPressed: () {
-            Navigator.of(context).pop(); // Navigate back when the button is pressed
-          },
-        ),
         title: Text('Image Extractor'),
       ),
       body: Center(
