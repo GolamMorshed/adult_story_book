@@ -44,6 +44,7 @@ class StoryInputPage extends StatefulWidget {
 class _StoryInputPageState extends State<StoryInputPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController titleController = TextEditingController();
+
   String? selectedGenre;
   final stt.SpeechToText _speech = stt.SpeechToText();
 
@@ -271,7 +272,8 @@ class _StoryInputPageState extends State<StoryInputPage> {
                       maxLines: null, // Allows for multiple lines
                       keyboardType: TextInputType.multiline,
                       textDirection: TextDirection.ltr,
-                      textAlign: TextAlign.start,
+                      textAlign: TextAlign.left,
+                      textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
                         hintText: 'Speak or type your story here (up to 1000 words)',
                         border: OutlineInputBorder(),

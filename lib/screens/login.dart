@@ -19,8 +19,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(text: 'r@gmail.com');
+  final TextEditingController _passwordController = TextEditingController(text: '123456');
   final String _apiUrl = 'http://127.0.0.1:8000/api/login'; // Replace with your API URL
   bool _loginFailed = false;
 
@@ -76,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
+
                 labelText: 'Email',
               ),
             ),
