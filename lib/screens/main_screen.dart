@@ -5,6 +5,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share/share.dart';
 import 'package:translator/translator.dart';
+import 'package:adult_story_book/screens/login.dart';
 
 class Story {
   final String title;
@@ -105,7 +106,12 @@ class _StoryDashboardState extends State<StoryDashboard> {
               IconButton(
                 icon: Icon(Icons.login),
                 onPressed: () {
-                  // Implement login functionality
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(),
+                    ),
+                  );
                 },
               ),
           ],
