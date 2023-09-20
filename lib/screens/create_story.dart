@@ -81,11 +81,6 @@ class _StoryInputPageState extends State<StoryInputPage> {
       String story = _text;
       print(widget.userId);
       final apiUrl = 'http://127.0.0.1:8000/api/stories';
-
-      print(title);
-      print(genre);
-      print(story);
-
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
@@ -113,8 +108,6 @@ class _StoryInputPageState extends State<StoryInputPage> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-
-
 
       } else {
         Fluttertoast.showToast(

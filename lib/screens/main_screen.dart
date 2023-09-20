@@ -143,8 +143,10 @@ class _StoryDashboardState extends State<StoryDashboard> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              StoryDetail(story: story, flutterTts: flutterTts),
+                          builder: (context) => StoryDetail(
+                            story: story,
+                            flutterTts: flutterTts,
+                          ),
                         ),
                       );
                     },
@@ -217,7 +219,7 @@ class StoryDetail extends StatefulWidget {
 }
 
 class _StoryDetailState extends State<StoryDetail> {
-  double fontSize = 16.0;
+  double fontSize = 14.0;
   bool readingMode = false;
   int currentPage = 0;
   int maxPages = 0;
@@ -227,16 +229,33 @@ class _StoryDetailState extends State<StoryDetail> {
   bool _isListening = false;
   String currentTranslation = '';
   GoogleTranslator translator = GoogleTranslator();
-
-  _StoryDetailState() {
-    _speech = stt.SpeechToText();
-  }
+  List<String> pages = [];
 
   @override
   void initState() {
     super.initState();
     splitContentIntoPages();
     _speech = stt.SpeechToText();
+  }
+
+  void splitContentIntoPages() {
+    final content = widget.story.content;
+    final words = content.split(' ');
+    final maxWordsPerPage = 150;
+    int start = 0;
+
+    while (start < words.length) {
+      int end = start + maxWordsPerPage;
+      if (end > words.length) {
+        end = words.length;
+      }
+
+      final page = words.sublist(start, end).join(' ');
+      pages.add(page);
+
+      start = end;
+    }
+    maxPages = pages.length;
   }
 
   @override
@@ -310,28 +329,6 @@ class _StoryDetailState extends State<StoryDetail> {
     } else if (command.toLowerCase().contains('previous')) {
       previousPage();
     }
-  }
-
-  List<String> pages = [];
-
-  void splitContentIntoPages() {
-    final content = widget.story.content;
-    final words = content.split(' ');
-    final maxWordsPerPage = 150;
-    int start = 0;
-
-    while (start < words.length) {
-      int end = start + maxWordsPerPage;
-      if (end > words.length) {
-        end = words.length;
-      }
-
-      final page = words.sublist(start, end).join(' ');
-      pages.add(page);
-
-      start = end;
-    }
-    maxPages = pages.length;
   }
 
   Future<void> translateContent(Locale targetLocale) async {

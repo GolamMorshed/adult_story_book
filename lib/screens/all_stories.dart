@@ -233,10 +233,8 @@ class _StoryDetailState extends State<StoryDetail> {
 
   Future<void> toggleTTS() async {
     if (isPlaying) {
-      // Stop TTS playback
       await widget.flutterTts.stop();
     } else {
-      // Start TTS playback
       await widget.flutterTts.speak(pages[currentPage]);
     }
 
@@ -245,10 +243,8 @@ class _StoryDetailState extends State<StoryDetail> {
     });
 
     if (_isListening) {
-      // Stop voice recognition
       _speech.stop();
     } else {
-      // Start voice recognition
       _speech.listen(
         onResult: (result) {
           if (result.finalResult) {
