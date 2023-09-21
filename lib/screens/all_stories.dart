@@ -257,9 +257,12 @@ class _StoryDetailState extends State<StoryDetail> {
   }
 
   void handleVoiceCommand(String command) {
+    print('Recognized command: $command');
     if (command.toLowerCase().contains('next')) {
+      print("I am here");
       nextPage();
     } else if (command.toLowerCase().contains('previous')) {
+
       previousPage();
     }
   }
@@ -286,6 +289,8 @@ class _StoryDetailState extends State<StoryDetail> {
     }
     maxPages = pages.length;
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -316,6 +321,8 @@ class _StoryDetailState extends State<StoryDetail> {
                   onPressed: toggleTTS,
                   child: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
                 ),
+
+
               ],
             ),
             SingleChildScrollView(

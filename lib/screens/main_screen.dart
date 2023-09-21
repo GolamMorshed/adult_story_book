@@ -39,6 +39,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
   FlutterTts flutterTts = FlutterTts();
   bool isDarkMode = true;
   bool isLoggedIn = false;
+  int currentPage = 0; // Define currentPage here
 
   @override
   void initState() {
@@ -147,11 +148,20 @@ class _StoryDashboardState extends State<StoryDashboard> {
                   return StoryCard(
                     story: story,
                     onTap: () {
+                      setState(() {
+                        currentPage = 0; // Reset currentPage when opening a new story
+                      });
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => StoryDetail(
                             story: story,
                             flutterTts: flutterTts,
+                            currentPage: currentPage, // Pass the currentPage
+                            onPageChanged: (int newPage) {
+                              setState(() {
+                                currentPage = newPage; // Update currentPage when it changes
+                              });
+                            },
                           ),
                         ),
                       );
@@ -217,8 +227,15 @@ class StoryCard extends StatelessWidget {
 class StoryDetail extends StatefulWidget {
   final Story story;
   final FlutterTts flutterTts;
+  final int currentPage; // Add currentPage here
+  final ValueChanged<int> onPageChanged; // Add onPageChanged callback
 
-  StoryDetail({required this.story, required this.flutterTts});
+  StoryDetail({
+    required this.story,
+    required this.flutterTts,
+    required this.currentPage,
+    required this.onPageChanged,
+  });
 
   @override
   _StoryDetailState createState() => _StoryDetailState();
@@ -227,8 +244,6 @@ class StoryDetail extends StatefulWidget {
 class _StoryDetailState extends State<StoryDetail> {
   double fontSize = 14.0;
   bool readingMode = false;
-  int currentPage = 0;
-  int maxPages = 0;
   bool isDarkMode = false;
   bool isPlaying = false;
   late stt.SpeechToText _speech;
@@ -261,7 +276,6 @@ class _StoryDetailState extends State<StoryDetail> {
 
       start = end;
     }
-    maxPages = pages.length;
   }
 
   @override
@@ -289,18 +303,14 @@ class _StoryDetailState extends State<StoryDetail> {
   }
 
   void nextPage() {
-    if (currentPage < maxPages - 1) {
-      setState(() {
-        currentPage++;
-      });
+    if (widget.currentPage < pages.length - 1) {
+      widget.onPageChanged(widget.currentPage + 1); // Notify parent of the page change
     }
   }
 
   void previousPage() {
-    if (currentPage > 0) {
-      setState(() {
-        currentPage--;
-      });
+    if (widget.currentPage > 0) {
+      widget.onPageChanged(widget.currentPage - 1); // Notify parent of the page change
     }
   }
 
@@ -308,7 +318,7 @@ class _StoryDetailState extends State<StoryDetail> {
     if (isPlaying) {
       await widget.flutterTts.stop();
     } else {
-      await widget.flutterTts.speak(pages[currentPage]);
+      await widget.flutterTts.speak(pages[widget.currentPage]);
     }
 
     setState(() {
@@ -347,7 +357,7 @@ class _StoryDetailState extends State<StoryDetail> {
 
     try {
       final translation = await translator.translate(
-        pages[currentPage],
+        pages[widget.currentPage], // Translate the current page's content
         from: 'en',
         to: targetLocale.languageCode,
       );
@@ -361,7 +371,7 @@ class _StoryDetailState extends State<StoryDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final contentText = currentPage < pages.length ? pages[currentPage] : '';
+    final contentText = widget.currentPage < pages.length ? pages[widget.currentPage] : '';
     final translatedText = currentTranslation.isNotEmpty ? currentTranslation : contentText;
 
     return Scaffold(
@@ -414,6 +424,12 @@ class _StoryDetailState extends State<StoryDetail> {
                         'Check out this story: ${widget.story.title}\n\n${widget.story.content}');
                   },
                   child: Icon(Icons.share),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    handleVoiceCommand('previous');
+                  },
+                  child: Text('Voice Command'),
                 )
               ],
             ),
