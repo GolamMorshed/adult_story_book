@@ -230,31 +230,6 @@ class _StoryInputPageState extends State<StoryInputPage> {
               // Replace TextFormField with a Row containing a TextFormField and a microphone button
               Row(
                 children: [
-                  // Expanded(
-                  //   child: TextFormField(
-                  //     controller: TextEditingController(text: _text),
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         _text = value;
-                  //       });
-                  //     },
-                  //
-                  //     validator: (value) {
-                  //       if (value == null || value.isEmpty) {
-                  //         return 'Story is required';
-                  //       }
-                  //       return null;
-                  //     },
-                  //     maxLines: null, // Allows for multiple lines
-                  //     keyboardType: TextInputType.multiline,
-                  //
-                  //     decoration: InputDecoration(
-                  //
-                  //       hintText: 'Speak or type your story here (up to 1000 words)',
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  // ),
                   Expanded(
                     child: TextFormField(
                       controller: TextEditingController(text: _text), // Keep this line

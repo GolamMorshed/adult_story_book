@@ -271,17 +271,15 @@ class _StoryDetailState extends State<StoryDetail> {
 
   void nextPage() {
     if (currentPage < maxPages - 1) {
-      _startListening();
       setState(() {
         currentPage++;
       });
-
+      _startListening();
     }
   }
 
   void previousPage() {
     if (currentPage > 0) {
-      _startListening();
       setState(() {
         currentPage--;
       });
@@ -376,7 +374,6 @@ class _StoryDetailState extends State<StoryDetail> {
     if (available) {
       _speech.listen(
         onResult: (result) {
-          print(result.recognizedWords);
           handleVoiceCommand(result.recognizedWords);
         },
       );
@@ -401,19 +398,6 @@ class _StoryDetailState extends State<StoryDetail> {
   void _stopListening() {
     _speech.stop();
   }
-
-  // void handleVoiceCommand(String command) {
-  //   if (command.toLowerCase().contains('next')) {
-  //     nextPage();
-  //   } else if (command.toLowerCase().contains('previous')) {
-  //     previousPage();
-  //   }
-  // }
-
-
-
-
-
 
 
   @override
@@ -470,12 +454,12 @@ class _StoryDetailState extends State<StoryDetail> {
                   onPressed: toggleVoiceNavigation,
                   icon: Icon(
                     Icons.mic,
-                    color: _isListening ? Colors.red : Colors.red,
+                    color: _isListening ? Colors.red : Colors.green,
                   ),
                   label: Text(
                     _isListening ? 'Listening...' : 'Voice Navigation',
                     style: TextStyle(
-                      color: _isListening ? Colors.red : Colors.red,
+                      color: _isListening ? Colors.red : Colors.green,
                     ),
                   ),
                 ),
