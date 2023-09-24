@@ -271,17 +271,21 @@ class _StoryDetailState extends State<StoryDetail> {
 
   void nextPage() {
     if (currentPage < maxPages - 1) {
+      _startListening();
       setState(() {
         currentPage++;
       });
+
     }
   }
 
   void previousPage() {
     if (currentPage > 0) {
+      _startListening();
       setState(() {
         currentPage--;
       });
+      _startListening();
     }
   }
 
@@ -310,13 +314,7 @@ class _StoryDetailState extends State<StoryDetail> {
     }
   }
 
-  void handleVoiceCommand(String command) {
-    if (command.toLowerCase().contains('next')) {
-      nextPage();
-    } else if (command.toLowerCase().contains('previous')) {
-      previousPage();
-    }
-  }
+
 
   List<String> pages = [];
 
@@ -361,6 +359,62 @@ class _StoryDetailState extends State<StoryDetail> {
       print('Translation error: $e');
     }
   }
+
+  void toggleVoiceNavigation() {
+    setState(() {
+      _isListening = !_isListening;
+      if (_isListening) {
+        _startListening();
+      } else {
+        _stopListening();
+      }
+    });
+  }
+
+  void _startListening() async {
+    bool available = await _speech.initialize();
+    if (available) {
+      _speech.listen(
+        onResult: (result) {
+          print(result.recognizedWords);
+          handleVoiceCommand(result.recognizedWords);
+        },
+      );
+    } else {
+      print('Speech recognition is not available');
+    }
+  }
+
+
+  void handleVoiceCommand(String command) {
+    print("I am in the voice command function");
+    if (command.toLowerCase().contains('next')) {
+      print("I said next");
+      nextPage();
+    } else if (command.toLowerCase().contains('previous')) {
+      print("I said previous");
+      previousPage();
+    }
+  }
+
+
+  void _stopListening() {
+    _speech.stop();
+  }
+
+  // void handleVoiceCommand(String command) {
+  //   if (command.toLowerCase().contains('next')) {
+  //     nextPage();
+  //   } else if (command.toLowerCase().contains('previous')) {
+  //     previousPage();
+  //   }
+  // }
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -410,6 +464,20 @@ class _StoryDetailState extends State<StoryDetail> {
                 ElevatedButton(
                   onPressed: toggleTTS,
                   child: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
+                ),
+
+                ElevatedButton.icon(
+                  onPressed: toggleVoiceNavigation,
+                  icon: Icon(
+                    Icons.mic,
+                    color: _isListening ? Colors.red : Colors.red,
+                  ),
+                  label: Text(
+                    _isListening ? 'Listening...' : 'Voice Navigation',
+                    style: TextStyle(
+                      color: _isListening ? Colors.red : Colors.red,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -508,6 +576,7 @@ class _StoryDetailState extends State<StoryDetail> {
     );
   }
 }
+
 
 void main() {
   runApp(StoryDashboard());
