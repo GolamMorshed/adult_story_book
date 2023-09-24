@@ -113,19 +113,23 @@ class _StoryListPageState extends State<StoryListPage> {
             margin: EdgeInsets.all(8.0),
             child: ListTile(
               title: Text(story.title),
-              subtitle: Text(story.genre),
+              subtitle: Text('ID: ${story.id}, Genre: ${story.genre}'),
+              //subtitle: Text(story.genre),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+
                   ElevatedButton(
                     onPressed: () async {
+                      print('story ID: ${story.id}');
                       final editedContent = await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => StoryEditPage(storyTitle: story.title, storyContent: story.content),
+
+                          builder: (context) => StoryEditPage(storyId: story.id,storyTitle: story.title, storyContent: story.content),
+
                         ),
                       );
 
-                      // Update the story content if the user saved changes
                       if (editedContent != null) {
                         setState(() {
                           story.content = editedContent;
@@ -158,11 +162,8 @@ class _StoryListPageState extends State<StoryListPage> {
                           ],
                         ),
                       );
-
                       if (confirmed == true) {
-
                         await deleteStory(story.id);
-
 
                       }
                     },
@@ -172,7 +173,7 @@ class _StoryListPageState extends State<StoryListPage> {
               ),
 
               onTap: () {
-                
+
               },
             ),
           );
@@ -194,10 +195,12 @@ void main() {
 }
 
 class StoryEditPage extends StatefulWidget {
+
+  final int storyId;
   final String storyTitle;
   final String storyContent;
 
-  StoryEditPage({required this.storyTitle, required this.storyContent});
+  StoryEditPage({required this.storyId,required this.storyTitle, required this.storyContent});
 
   @override
   _StoryEditPageState createState() => _StoryEditPageState();
@@ -210,6 +213,7 @@ class _StoryEditPageState extends State<StoryEditPage> {
   @override
   void initState() {
     super.initState();
+    int storyId = widget.storyId;
     _titleController.text = widget.storyTitle;
     _contentController.text = widget.storyContent;
   }
@@ -245,18 +249,53 @@ class _StoryEditPageState extends State<StoryEditPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                // Save the edited story title and content and pop the screen to return to the story list
+              onPressed: () async {
                 final editedTitle = _titleController.text;
                 final editedContent = _contentController.text;
-                Navigator.of(context).pop({'title': editedTitle, 'content': editedContent});
+                await updateStory(widget.storyId, editedTitle, editedContent);
               },
               child: Text('Save'),
             ),
+
           ],
         ),
       ),
     );
   }
+
+
+  Future<void> updateStory(int storyId, String title, String content) async {
+
+    final apiUrl = 'http://127.0.0.1:8000/api/stories/$storyId';
+
+    final response = await http.put(
+      Uri.parse(apiUrl),
+      body: {
+        'title': title,
+        'content': content,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+        msg: 'Story updated successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      Navigator.of(context).pop({'title': title, 'content': content});
+      Navigator.of(context).pop();
+
+
+    } else {
+      print('Failed to update story. Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+    }
+  }
+
 }
 
