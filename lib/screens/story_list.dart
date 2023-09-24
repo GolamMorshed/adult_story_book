@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:adult_story_book/screens/dashboard.dart';
@@ -65,6 +66,33 @@ class _StoryListPageState extends State<StoryListPage> {
     }
   }
 
+  Future<void> deleteStory(int storyId) async {
+    final apiUrl = 'http://127.0.0.1:8000/api/stories/$storyId';
+
+    final response = await http.delete(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+        msg: 'Story deleted successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      setState(() {
+        stories.removeWhere((story) => story.id == storyId);
+      });
+    } else {
+
+      print('Failed to delete story. Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,26 +114,65 @@ class _StoryListPageState extends State<StoryListPage> {
             child: ListTile(
               title: Text(story.title),
               subtitle: Text(story.genre),
-              trailing: ElevatedButton(
-                onPressed: () async {
-                  final editedContent = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => StoryEditPage(storyContent: story.content),
-                    ),
-                  );
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final editedContent = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => StoryEditPage(storyTitle: story.title, storyContent: story.content),
+                        ),
+                      );
 
-                  // Update the story content if the user saved changes
-                  if (editedContent != null) {
-                    setState(() {
-                      story.content = editedContent;
-                    });
-                  }
-                },
-                child: Text('Edit'),
+                      // Update the story content if the user saved changes
+                      if (editedContent != null) {
+                        setState(() {
+                          story.content = editedContent;
+                        });
+                      }
+                    },
+                    child: Text('Edit'),
+                  ),
+                  SizedBox(width: 8.0), // Add some spacing between buttons
+                  ElevatedButton(
+                    onPressed: () async {
+                      final confirmed = await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Confirm Delete'),
+                          content: Text('Are you sure you want to delete this story?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false);
+                              },
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                              child: Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+
+                        await deleteStory(story.id);
+
+
+                      }
+                    },
+                    child: Text('Delete'),
+                  ),
+                ],
               ),
+
               onTap: () {
-                // Handle the tap event for a story item
-                // You can navigate to a detailed view or perform any action here
+                
               },
             ),
           );
@@ -127,20 +194,23 @@ void main() {
 }
 
 class StoryEditPage extends StatefulWidget {
+  final String storyTitle;
   final String storyContent;
 
-  StoryEditPage({required this.storyContent});
+  StoryEditPage({required this.storyTitle, required this.storyContent});
 
   @override
   _StoryEditPageState createState() => _StoryEditPageState();
 }
 
 class _StoryEditPageState extends State<StoryEditPage> {
+  TextEditingController _titleController = TextEditingController();
   TextEditingController _contentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _titleController.text = widget.storyTitle;
     _contentController.text = widget.storyContent;
   }
 
@@ -155,22 +225,31 @@ class _StoryEditPageState extends State<StoryEditPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            TextFormField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
             Expanded(
               child: TextFormField(
                 controller: _contentController,
                 maxLines: null, // Allows for multiple lines
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
-                  hintText: 'Edit your story here (up to 1000 words)',
+                  labelText: 'Content (up to 1000 words)',
                   border: OutlineInputBorder(),
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                // Save the edited story content and pop the screen to return to the story list
+                // Save the edited story title and content and pop the screen to return to the story list
+                final editedTitle = _titleController.text;
                 final editedContent = _contentController.text;
-                Navigator.of(context).pop(editedContent);
+                Navigator.of(context).pop({'title': editedTitle, 'content': editedContent});
               },
               child: Text('Save'),
             ),
@@ -180,3 +259,4 @@ class _StoryEditPageState extends State<StoryEditPage> {
     );
   }
 }
+
