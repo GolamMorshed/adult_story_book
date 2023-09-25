@@ -125,7 +125,10 @@ class _StoryListPageState extends State<StoryListPage> {
                       final editedContent = await Navigator.of(context).push(
                         MaterialPageRoute(
 
-                          builder: (context) => StoryEditPage(storyId: story.id,storyTitle: story.title, storyContent: story.content),
+                          builder: (context) => StoryEditPage(storyId: story.id,
+                              storyTitle: story.title,
+                              storyGenre: story.genre,
+                              storyContent: story.content),
 
                         ),
                       );
@@ -198,9 +201,19 @@ class StoryEditPage extends StatefulWidget {
 
   final int storyId;
   final String storyTitle;
+  String storyGenre;
   final String storyContent;
 
-  StoryEditPage({required this.storyId,required this.storyTitle, required this.storyContent});
+  StoryEditPage({
+     required this.storyId,
+     required this.storyTitle,
+     required this.storyGenre,
+     required this.storyContent
+  });
+
+  set genre(String value) {
+    storyGenre = value;
+  }
 
   @override
   _StoryEditPageState createState() => _StoryEditPageState();
@@ -237,6 +250,30 @@ class _StoryEditPageState extends State<StoryEditPage> {
               ),
             ),
             SizedBox(height: 16.0),
+            DropdownButtonFormField<String>(
+              value: widget.storyGenre, // Set the initial genre value
+              onChanged: (String? newValue) {
+                setState(() {
+                  widget.storyGenre = newValue ?? '';
+                });
+              },
+              items: <String>[
+                'Science Fiction',
+                'Fantasy',
+                'Romance',
+                'Mystery',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                labelText: 'Genre',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
             Expanded(
               child: TextFormField(
                 controller: _contentController,
@@ -252,7 +289,7 @@ class _StoryEditPageState extends State<StoryEditPage> {
               onPressed: () async {
                 final editedTitle = _titleController.text;
                 final editedContent = _contentController.text;
-                await updateStory(widget.storyId, editedTitle, editedContent);
+                await updateStory(widget.storyId, editedTitle,widget.storyGenre, editedContent);
               },
               child: Text('Save'),
             ),
@@ -264,7 +301,7 @@ class _StoryEditPageState extends State<StoryEditPage> {
   }
 
 
-  Future<void> updateStory(int storyId, String title, String content) async {
+  Future<void> updateStory(int storyId, String title,String genre, String content) async {
 
     final apiUrl = 'http://127.0.0.1:8000/api/stories/$storyId';
 
@@ -272,6 +309,7 @@ class _StoryEditPageState extends State<StoryEditPage> {
       Uri.parse(apiUrl),
       body: {
         'title': title,
+        'genre': genre,
         'content': content,
       },
     );
