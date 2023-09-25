@@ -91,12 +91,14 @@ class _StoryInputPageState extends State<StoryInputPage> {
       String title = titleController.text;
       String genre = selectedGenre ?? '';
       String story = _text;
+      story = '';
       print(widget.userId);
       final apiUrl = 'http://127.0.0.1:8000/api/stories';
 
       print(title);
       print(genre);
       print(story);
+
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -151,15 +153,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   // title: Text('Create Story'),
-      //   // leading: IconButton(
-      //   //   icon: Icon(Icons.arrow_back),
-      //   //   onPressed: () {
-      //   //     Navigator.of(context).pop(); // Navigate back to the previous screen
-      //   //   },
-      //   // ),
-      // ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -232,9 +226,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 children: [
                   Expanded(
                     child: TextFormField(
-
                       controller: TextEditingController(text: _text),
-
                       // onChanged: (value) {
                       //   setState(() {
                       //     _text = value;
@@ -246,16 +238,12 @@ class _StoryInputPageState extends State<StoryInputPage> {
                         }
                         return null;
                       },
-                      //maxLines: null, // Allows for multiple lines
-                      //keyboardType: TextInputType.multiline,
-                      //textDirection: TextDirection.ltr,
-                      //textAlign: TextAlign.left,
-                      //textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
                         hintText: 'Speak or type your story here (up to 1000 words)',
                         border: OutlineInputBorder(),
-                      ),
 
+                      ),
+                      // textAlign: TextAlign.start,
                     ),
                   ),
 
