@@ -5,6 +5,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share/share.dart';
 import 'package:translator/translator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:adult_story_book/screens/login.dart';
 
 class Story {
@@ -39,6 +41,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
   FlutterTts flutterTts = FlutterTts();
   bool isDarkMode = true;
   bool isLoggedIn = false;
+  File? backgroundImage; // Selected background image
 
   @override
   void initState() {
@@ -76,6 +79,17 @@ class _StoryDashboardState extends State<StoryDashboard> {
     }).toList();
   }
 
+  // Function to pick a background image
+  Future<void> pickBackgroundImage() async {
+    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        backgroundImage = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -85,6 +99,10 @@ class _StoryDashboardState extends State<StoryDashboard> {
         appBar: AppBar(
           title: Text('Story Viewer'),
           actions: [
+            IconButton(
+              icon: Icon(Icons.image), // Button to choose background image
+              onPressed: pickBackgroundImage,
+            ),
             IconButton(
               icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
               onPressed: () {
@@ -116,49 +134,59 @@ class _StoryDashboardState extends State<StoryDashboard> {
               ),
           ],
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: searchController,
-                onChanged: (_) {
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search...',
+        body: Container(
+          decoration: BoxDecoration(
+            image: backgroundImage != null
+                ? DecorationImage(
+              image: FileImage(backgroundImage!), // Set selected background image
+              fit: BoxFit.cover,
+            )
+                : null,
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (_) {
+                    setState(() {});
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 16.0,
+                  ),
+                  itemCount: searchController.text.isEmpty
+                      ? stories.length
+                      : getFilteredStories(searchController.text).length,
+                  itemBuilder: (context, index) {
+                    final story = searchController.text.isEmpty
+                        ? stories[index]
+                        : getFilteredStories(searchController.text)[index];
+                    return StoryCard(
+                      story: story,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                StoryDetail(story: story, flutterTts: flutterTts),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
-                itemCount: searchController.text.isEmpty
-                    ? stories.length
-                    : getFilteredStories(searchController.text).length,
-                itemBuilder: (context, index) {
-                  final story = searchController.text.isEmpty
-                      ? stories[index]
-                      : getFilteredStories(searchController.text)[index];
-                  return StoryCard(
-                    story: story,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              StoryDetail(story: story, flutterTts: flutterTts),
-                        ),
-                      );
-                    },
-                  );
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -312,8 +340,6 @@ class _StoryDetailState extends State<StoryDetail> {
     }
   }
 
-
-
   List<String> pages = [];
 
   void splitContentIntoPages() {
@@ -382,7 +408,6 @@ class _StoryDetailState extends State<StoryDetail> {
     }
   }
 
-
   void handleVoiceCommand(String command) {
     print("I am in the voice command function");
     if (command.toLowerCase().contains('next')) {
@@ -394,16 +419,15 @@ class _StoryDetailState extends State<StoryDetail> {
     }
   }
 
-
   void _stopListening() {
     _speech.stop();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final contentText = currentPage < pages.length ? pages[currentPage] : '';
-    final translatedText = currentTranslation.isNotEmpty ? currentTranslation : contentText;
+    final translatedText =
+    currentTranslation.isNotEmpty ? currentTranslation : contentText;
 
     return Scaffold(
       appBar: AppBar(
@@ -449,7 +473,6 @@ class _StoryDetailState extends State<StoryDetail> {
                   onPressed: toggleTTS,
                   child: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
                 ),
-
                 ElevatedButton.icon(
                   onPressed: toggleVoiceNavigation,
                   icon: Icon(
@@ -560,7 +583,6 @@ class _StoryDetailState extends State<StoryDetail> {
     );
   }
 }
-
 
 void main() {
   runApp(StoryDashboard());
