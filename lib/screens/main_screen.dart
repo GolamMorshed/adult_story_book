@@ -176,8 +176,11 @@ class _StoryDashboardState extends State<StoryDashboard> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                StoryDetail(story: story, flutterTts: flutterTts),
+                            builder: (context) => StoryDetail(
+                              story: story,
+                              flutterTts: flutterTts,
+                              backgroundImage: backgroundImage, // Pass background image
+                            ),
                           ),
                         );
                       },
@@ -243,8 +246,13 @@ class StoryCard extends StatelessWidget {
 class StoryDetail extends StatefulWidget {
   final Story story;
   final FlutterTts flutterTts;
+  final File? backgroundImage; // Add this line
 
-  StoryDetail({required this.story, required this.flutterTts});
+  StoryDetail({
+    required this.story,
+    required this.flutterTts,
+    this.backgroundImage, // Add this line
+  });
 
   @override
   _StoryDetailState createState() => _StoryDetailState();
@@ -271,6 +279,7 @@ class _StoryDetailState extends State<StoryDetail> {
     super.initState();
     splitContentIntoPages();
     _speech = stt.SpeechToText();
+    translateContent(Locale('en')); // Translate initially to English
   }
 
   @override
@@ -409,12 +418,9 @@ class _StoryDetailState extends State<StoryDetail> {
   }
 
   void handleVoiceCommand(String command) {
-    print("I am in the voice command function");
     if (command.toLowerCase().contains('next')) {
-      print("I said next");
       nextPage();
     } else if (command.toLowerCase().contains('previous')) {
-      print("I said previous");
       previousPage();
     }
   }
