@@ -232,27 +232,30 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      controller: TextEditingController(text: _text), // Keep this line
-                      onChanged: (value) {
-                        setState(() {
-                          _text = value; // This line will update the _text variable when the user types
-                        });
-                      },
+
+                      controller: TextEditingController(text: _text),
+
+                      // onChanged: (value) {
+                      //   setState(() {
+                      //     _text = value;
+                      //   });
+                      // },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Story is required';
                         }
                         return null;
                       },
-                      maxLines: null, // Allows for multiple lines
-                      keyboardType: TextInputType.multiline,
-                      textDirection: TextDirection.ltr,
-                      textAlign: TextAlign.left,
-                      textAlignVertical: TextAlignVertical.center,
+                      //maxLines: null, // Allows for multiple lines
+                      //keyboardType: TextInputType.multiline,
+                      //textDirection: TextDirection.ltr,
+                      //textAlign: TextAlign.left,
+                      //textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
                         hintText: 'Speak or type your story here (up to 1000 words)',
                         border: OutlineInputBorder(),
                       ),
+
                     ),
                   ),
 
