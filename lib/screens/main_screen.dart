@@ -6,13 +6,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share/share.dart';
 import 'package:translator/translator.dart';
 import 'package:adult_story_book/screens/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Story {
+  final int id;
   final String title;
   final String genre;
   final String content;
 
   Story({
+    required this.id,
     required this.title,
     required this.genre,
     required this.content,
@@ -20,6 +23,7 @@ class Story {
 
   factory Story.fromJson(Map<String, dynamic> json) {
     return Story(
+      id: json['id'],
       title: json['title'],
       genre: json['genre'],
       content: json['content'],
@@ -39,6 +43,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
   FlutterTts flutterTts = FlutterTts();
   bool isDarkMode = true;
   bool isLoggedIn = false;
+  int currentPage = 0;
 
   @override
   void initState() {
@@ -150,7 +155,7 @@ class _StoryDashboardState extends State<StoryDashboard> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
-                              StoryDetail(story: story, flutterTts: flutterTts),
+                              StoryDetail(story: story, flutterTts: flutterTts,initialPage: currentPage),
                         ),
                       );
                     },
@@ -215,8 +220,9 @@ class StoryCard extends StatelessWidget {
 class StoryDetail extends StatefulWidget {
   final Story story;
   final FlutterTts flutterTts;
+  final int initialPage;
 
-  StoryDetail({required this.story, required this.flutterTts});
+  StoryDetail({required this.story, required this.flutterTts, required this.initialPage});
 
   @override
   _StoryDetailState createState() => _StoryDetailState();
@@ -225,7 +231,7 @@ class StoryDetail extends StatefulWidget {
 class _StoryDetailState extends State<StoryDetail> {
   double fontSize = 16.0;
   bool readingMode = false;
-  int currentPage = 0;
+  late int currentPage = 0;
   int maxPages = 0;
   bool isDarkMode = false;
   bool isPlaying = false;
@@ -233,6 +239,11 @@ class _StoryDetailState extends State<StoryDetail> {
   bool _isListening = false;
   String currentTranslation = '';
   GoogleTranslator translator = GoogleTranslator();
+
+
+  late SharedPreferences _prefs;
+  late int storeStoryID = 0;
+  late int storePageNumber = 0;
 
   _StoryDetailState() {
     _speech = stt.SpeechToText();
@@ -243,13 +254,52 @@ class _StoryDetailState extends State<StoryDetail> {
     super.initState();
     splitContentIntoPages();
     _speech = stt.SpeechToText();
+    initSharedPreferences();
+    //saveData();
+    int currentStoryId = widget.story.id;
+    print("stored story id: $storeStoryID");
+    print("left page number: $storePageNumber");
+    print("current story id: $currentStoryId");
+
+
+    if(storeStoryID == currentStoryId)
+      {
+        print("I am here");
+        currentPage = storePageNumber;
+      }
   }
 
   @override
   void dispose() {
+    saveValuesToSharedPreferences();
     _speech.stop();
     super.dispose();
   }
+
+  void saveData(){
+    print(this.storePageNumber);
+    print(this.storeStoryID);
+  }
+
+  Future<void> initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    storeStoryID = _prefs.getInt('storeStoryID') ?? widget.story.id;
+    storePageNumber = _prefs.getInt('storePageNumber') ?? currentPage;
+    saveValuesToSharedPreferences();
+    print("Sha current page number : $storePageNumber");
+    print("Sha store story id: $storeStoryID");
+    print("____________________________________________");
+    saveData();
+    print("____________________________________________");
+
+  }
+
+  Future<void> saveValuesToSharedPreferences() async {
+    await _prefs.setInt('storeStoryID', storeStoryID);
+    await _prefs.setInt('storePageNumber', storePageNumber);
+
+  }
+
 
   void increaseFontSize() {
     setState(() {
@@ -273,15 +323,19 @@ class _StoryDetailState extends State<StoryDetail> {
     if (currentPage < maxPages - 1) {
       setState(() {
         currentPage++;
+        initSharedPreferences();
+
       });
       _startListening();
     }
   }
 
+
   void previousPage() {
     if (currentPage > 0) {
       setState(() {
         currentPage--;
+        storePageNumber = currentPage;
       });
       _startListening();
     }
@@ -427,6 +481,7 @@ class _StoryDetailState extends State<StoryDetail> {
               ];
             },
           ),
+          
         ],
       ),
       body: Padding(
