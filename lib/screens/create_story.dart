@@ -225,7 +225,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 children: [
                   Expanded(
                     child: Container(
-                      height: 200, 
+                      height: 200,
                       child: TextFormField(
 
                         controller: TextEditingController(text: _text),
