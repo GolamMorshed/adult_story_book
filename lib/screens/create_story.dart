@@ -91,7 +91,7 @@ class _StoryInputPageState extends State<StoryInputPage> {
       String title = titleController.text;
       String genre = selectedGenre ?? '';
       String story = _text;
-      story = '';
+      //story = '';
       print(widget.userId);
       final apiUrl = 'http://127.0.0.1:8000/api/stories';
 
@@ -221,39 +221,62 @@ class _StoryInputPageState extends State<StoryInputPage> {
                 style: TextStyle(fontSize: 18),
               ),
               SizedBox(height: 8),
-              // Replace TextFormField with a Row containing a TextFormField and a microphone button
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      controller: TextEditingController(text: _text),
-                      // onChanged: (value) {
-                      //   setState(() {
-                      //     _text = value;
-                      //   });
-                      // },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Story is required';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Speak or type your story here (up to 1000 words)',
-                        border: OutlineInputBorder(),
+                    child: Container(
+                      height: 200, 
+                      child: TextFormField(
 
+                        controller: TextEditingController(text: _text),
+                        minLines: 5, // Minimum number of lines
+                        maxLines: 10, // Maximum number of lines
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Story is required';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Speak or type your story here (up to 1000 words)',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                      // textAlign: TextAlign.start,
                     ),
                   ),
-
-
                   IconButton(
                     icon: Icon(Icons.mic),
                     onPressed: _listen,
                   ),
                 ],
               ),
+
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: TextFormField(
+              //         controller: TextEditingController(text: _text),
+              //         validator: (value) {
+              //           if (value == null || value.isEmpty) {
+              //             return 'Story is required';
+              //           }
+              //           return null;
+              //         },
+              //         decoration: InputDecoration(
+              //           hintText: 'Speak or type your story here (up to 1000 words)',
+              //           border: OutlineInputBorder(),
+              //
+              //         ),
+              //       ),
+              //     ),
+              //
+              //
+              //     IconButton(
+              //       icon: Icon(Icons.mic),
+              //       onPressed: _listen,
+              //     ),
+              //   ],
+              // ),
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _saveStory,
