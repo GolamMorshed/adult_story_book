@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
 import 'package:adult_story_book/screens/all_stories.dart';
 import 'package:adult_story_book/screens/story_list.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class Dashboard extends StatefulWidget {
   final String userId;
@@ -16,13 +17,28 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool isDarkMode = false; // Track dark mode state
+  late stt.SpeechToText _speech;
 
   @override
   void initState() {
     super.initState();
+    _speech = stt.SpeechToText();
+    initSpeechRecognition();
     loadTheme();
   }
-
+  // Function to initialize speech recognition
+  void initSpeechRecognition() async {
+    bool available = await _speech.initialize(
+      onStatus: (status) => print('Speech recognition status: $status'),
+      onError: (errorNotification) =>
+          print('Speech recognition error: $errorNotification'),
+    );
+    if (available) {
+      print('Speech recognition initialized.');
+    } else {
+      print('Error initializing speech recognition.');
+    }
+  }
   // Function to load the theme preference from SharedPreferences
   void loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,13 +47,34 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
-  // Function to toggle between light and dark modes
   void toggleDarkMode() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isDarkMode = !isDarkMode;
       prefs.setBool('isDarkMode', isDarkMode);
     });
+  }
+
+  void startListening() async {
+    if (!_speech.isListening) {
+      await _speech.listen(
+        onResult: (result) {
+          if (result.finalResult) {
+            handleVoiceCommand(result.recognizedWords);
+          }
+        },
+      );
+    }
+  }
+
+  void handleVoiceCommand(String command) {
+    if (command.toLowerCase().contains('open')) {
+      print("Opening settings...");
+    } else if (command.toLowerCase().contains('navigate to profile')) {
+      print("Navigating to profile...");
+    } else {
+      print("Unrecognized command: $command");
+    }
   }
 
   @override
@@ -50,6 +87,14 @@ class _DashboardState extends State<Dashboard> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('Dashboard'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.mic), // Replace with your desired button icon
+              onPressed: () {
+                startListening();
+              },
+            ),
+          ],
         ),
         drawer: Sidebar(userName: widget.userName),
         body: DashboardGrid(userId: widget.userId),
