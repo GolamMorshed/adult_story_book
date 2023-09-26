@@ -269,6 +269,8 @@ class _StoryDetailState extends State<StoryDetail> {
   bool _isListening = false;
   String currentTranslation = '';
   GoogleTranslator translator = GoogleTranslator();
+  //double fontSize = 16.0;
+  final double minFontSize = 18.0;
 
   _StoryDetailState() {
     _speech = stt.SpeechToText();
@@ -291,12 +293,19 @@ class _StoryDetailState extends State<StoryDetail> {
   void increaseFontSize() {
     setState(() {
       fontSize += 2.0;
+      if (fontSize > minFontSize) {
+        fontSize = minFontSize;
+      }
     });
+
   }
 
   void decreaseFontSize() {
     setState(() {
       fontSize -= 2.0;
+      // if (fontSize < minFontSize) {
+      //   fontSize = minFontSize;
+      // }
     });
   }
 
@@ -434,6 +443,8 @@ class _StoryDetailState extends State<StoryDetail> {
     final contentText = currentPage < pages.length ? pages[currentPage] : '';
     final translatedText =
     currentTranslation.isNotEmpty ? currentTranslation : contentText;
+
+
 
     return Scaffold(
       appBar: AppBar(
