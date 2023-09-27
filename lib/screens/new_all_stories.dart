@@ -254,7 +254,7 @@ class StoryDetail extends StatefulWidget {
 }
 
 class _StoryDetailState extends State<StoryDetail> {
-  double fontSize = 16.0;
+  double fontSize = 12.0;
   bool readingMode = false;
   int currentPage = 0;
   int maxPages = 0;
@@ -652,7 +652,7 @@ class _StoryDetailState extends State<StoryDetail> {
       ),
     );
   }
-  
+
 }
 
 
