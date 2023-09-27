@@ -1,4 +1,5 @@
 import 'package:adult_story_book/screens/image_to_text.dart';
+import 'package:adult_story_book/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
@@ -301,19 +302,25 @@ class Sidebar extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.settings),
+          //   title: Text('Settings'),
+          //   onTap: () {
+          //     Navigator.pop(context);
+          //   },
+          // ),
           ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () {
-              clearUserIdInSharedPreferences();
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(), // Navigate to CreateStory with userId
+                ),
+              );
+              // clearUserIdInSharedPreferences();
+              // Navigator.pop(context);
             },
           ),
         ],
