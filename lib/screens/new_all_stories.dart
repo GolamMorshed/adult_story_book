@@ -383,6 +383,7 @@ class _StoryDetailState extends State<StoryDetail> {
       setState(() {
         currentPage--;
       });
+      storePage(currentPage);
       _startListening();
     }
   }
