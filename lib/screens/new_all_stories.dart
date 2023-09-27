@@ -108,7 +108,13 @@ class _StoryDashboardState extends State<StoryDashboard1> {
       theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Story Viewer'),
+          title: Text('      Story Viewer'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back), // Add back button icon
+            onPressed: () {
+              Navigator.pop(context); // Navigate back when pressed
+            },
+          ),
           actions: [
             IconButton(
               icon: Icon(Icons.image), // Button to choose background image
