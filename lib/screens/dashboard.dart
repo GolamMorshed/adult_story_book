@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
 import 'package:adult_story_book/screens/new_all_stories.dart';
 import 'package:adult_story_book/screens/story_list.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
 
 class Dashboard extends StatefulWidget {
   final String userId;
@@ -16,11 +18,88 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool isDarkMode = false; // Track dark mode state
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
 
+
+  _DashboardState() {
+    _speech = stt.SpeechToText();
+  }
   @override
   void initState() {
     super.initState();
+    _startListening();
     loadTheme();
+  }
+  void _startListening() async {
+    bool available = await _speech.initialize();
+    print("i am here");
+    if (available) {
+      _speech.listen(
+        onResult: (result) {
+          if (result.finalResult) {
+            handleVoiceCommand(result.recognizedWords);
+            print(result.recognizedWords);
+            //_speech.stop();
+          }
+        },
+      );
+    } else {
+      print('Speech recognition is not available');
+    }
+  }
+  void _stopListening() {
+    _speech.stop();
+  }
+  void handleVoiceCommand(String command) {
+    print("i am in handle voice");
+    if (command.toLowerCase().contains('create story')) {
+      print("i listen open create story");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyApp(userId: widget.userId),
+        ),
+      );
+    } else if (command.toLowerCase().contains('story list')) {
+      print("i listen open story list");
+      // Navigate to the Story List page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StoryListPage(userId: widget.userId),
+        ),
+      );
+    } else if (command.toLowerCase().contains('extract image')) {
+      print("i listen extract image");
+      // Navigate to the Story List page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageToText(userId: widget.userId),
+        ),
+      );
+    }else if (command.toLowerCase().contains('all story')) {
+      print("i listen open all story");
+      // Navigate to the Story List page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StoryDashboard1(userId: widget.userId),
+        ),
+      );
+    }
+    // Add more voice commands and navigation logic as needed
+  }
+  void toggleListening() {
+    setState(() {
+      _isListening = !_isListening;
+      if (_isListening) {
+        _startListening();
+      } else {
+        _stopListening();
+      }
+    });
   }
 
   // Function to load the theme preference from SharedPreferences
@@ -43,13 +122,22 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final themeData = isDarkMode ? ThemeData.dark() : ThemeData.light();
-
     return MaterialApp(
       title: 'Dashboard App',
       theme: themeData, // Set the theme based on isDarkMode
       home: Scaffold(
         appBar: AppBar(
           title: Text('Dashboard'),
+          actions: [
+            // Add the voice recognition button to the AppBar
+            ElevatedButton(
+              onPressed: toggleListening,
+              child: Icon(
+                _isListening ? Icons.mic_off : Icons.mic,
+                color: _isListening ? Colors.red : Colors.green,
+              ),
+            ),
+          ],
         ),
         drawer: Sidebar(userName: widget.userName),
         body: DashboardGrid(userId: widget.userId),
