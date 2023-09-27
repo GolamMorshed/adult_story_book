@@ -13,7 +13,7 @@ import 'package:adult_story_book/screens/image_to_text.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'main',
+    initialRoute: 'login',
     routes: {
       'login': (context) => LoginScreen(),
       'registration': (context) => Registration(),

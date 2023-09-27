@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:adult_story_book/screens/dashboard.dart';
 
 class MyApp extends StatelessWidget {
-  final String userId; // Add userId parameter
+  final String userId;
 
   MyApp({required this.userId});
 

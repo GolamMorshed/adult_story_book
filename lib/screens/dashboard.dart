@@ -2,7 +2,7 @@ import 'package:adult_story_book/screens/image_to_text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adult_story_book/screens/create_story.dart';
-import 'package:adult_story_book/screens/all_stories.dart';
+import 'package:adult_story_book/screens/new_all_stories.dart';
 import 'package:adult_story_book/screens/story_list.dart';
 
 class Dashboard extends StatefulWidget {
@@ -165,7 +165,7 @@ class DashboardGrid extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AllStories(), // Navigate to CreateStory with userId
+          builder: (context) => StoryDashboard1(userId: userId), // Navigate to CreateStory with userId
         ),
       );
     } else if (itemName == 'Extract Images') {
