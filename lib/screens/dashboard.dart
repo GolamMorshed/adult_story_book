@@ -22,32 +22,37 @@ class _DashboardState extends State<Dashboard> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
 
-
-  _DashboardState() {
-    _speech = stt.SpeechToText();
-  }
   @override
   void initState() {
     super.initState();
+    _speech = stt.SpeechToText();
     _startListening();
+
     loadTheme();
   }
   void _startListening() async {
     bool available = await _speech.initialize();
-    print("i am here");
-    if (available) {
-      _speech.listen(
-        onResult: (result) {
-          if (result.finalResult) {
-            handleVoiceCommand(result.recognizedWords);
-            print(result.recognizedWords);
-            //_speech.stop();
-          }
-        },
-      );
-    } else {
-      print('Speech recognition is not available');
-    }
+    print("i am in start listening function");
+
+    _speech.listen(
+      onResult: (result){
+        handleVoiceCommand(result.recognizedWords);
+        print(result.recognizedWords);
+      }
+    );
+    // if (available) {
+    //   _speech.listen(
+    //     onResult: (result) {
+    //       if (result.finalResult) {
+    //         handleVoiceCommand(result.recognizedWords);
+    //         print("I recognized: ");
+    //         print(result.recognizedWords);
+    //       }
+    //     },
+    //   );
+    // } else {
+    //   print('Speech recognition is not available');
+    // }
   }
   void _stopListening() {
     _speech.stop();
@@ -90,8 +95,9 @@ class _DashboardState extends State<Dashboard> {
         ),
       );
     }
-    // Add more voice commands and navigation logic as needed
+
   }
+
   void toggleListening() {
     setState(() {
       _isListening = !_isListening;
@@ -103,7 +109,6 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
-  // Function to load the theme preference from SharedPreferences
   void loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
