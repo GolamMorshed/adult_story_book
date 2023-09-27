@@ -652,8 +652,7 @@ class _StoryDetailState extends State<StoryDetail> {
       ),
     );
   }
-
-
+  
 }
 
 
