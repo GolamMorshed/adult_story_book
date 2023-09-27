@@ -476,15 +476,20 @@ class _StoryDetailState extends State<StoryDetail> {
 
   void _startListening() async {
     bool available = await _speech.initialize();
-    if (available) {
-      _speech.listen(
-        onResult: (result) {
-          handleVoiceCommand(result.recognizedWords);
-        },
-      );
-    } else {
-      print('Speech recognition is not available');
-    }
+    _speech.listen(
+      onResult: (result){
+        handleVoiceCommand(result.recognizedWords);
+      }
+    );
+    // if (available) {
+    //   _speech.listen(
+    //     onResult: (result) {
+    //       handleVoiceCommand(result.recognizedWords);
+    //     },
+    //   );
+    // } else {
+    //   print('Speech recognition is not available');
+    // }
   }
 
   void handleVoiceCommand(String command) {
