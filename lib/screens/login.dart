@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                  child: Text('Already have an account? Sign In',
+                  child: Text('Do not have an account? Sign In',
                     style: TextStyle(
                       color: Colors.black, // Set text color to black
                     ),),
