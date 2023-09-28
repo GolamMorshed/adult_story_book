@@ -21,6 +21,7 @@ class _DashboardState extends State<Dashboard> {
   bool isDarkMode = false; // Track dark mode state
   late stt.SpeechToText _speech;
   bool _isListening = false;
+  //String? recognizedWords;
 
   @override
   void initState() {
@@ -32,14 +33,34 @@ class _DashboardState extends State<Dashboard> {
   }
   void _startListening() async {
     bool available = await _speech.initialize();
-    print("i am in start listening function");
 
-    _speech.listen(
-      onResult: (result){
-        handleVoiceCommand(result.recognizedWords);
-        print(result.recognizedWords);
-      }
-    );
+
+
+    if(available){
+      _speech.listen(
+          onResult: (result){
+            handleVoiceCommand(result.recognizedWords);
+
+            print("I recognized: ");
+            print(result.recognizedWords);
+            print("---------------------------------");
+          }
+
+      );
+    }
+
+
+    // void _startListening() async {
+    //   bool available = await _speech.initialize();
+    //   _speech.listen(
+    //       onResult: (result) {
+    //         // Set recognizedWords
+    //         recognizedWords = result.recognizedWords;
+    //         handleVoiceCommand(result.recognizedWords);
+    //       }
+    //   );
+    // }
+
     // if (available) {
     //   _speech.listen(
     //     onResult: (result) {
@@ -58,7 +79,6 @@ class _DashboardState extends State<Dashboard> {
     _speech.stop();
   }
   void handleVoiceCommand(String command) {
-    print("i am in handle voice");
     if (command.toLowerCase().contains('create story')) {
       print("i listen open create story");
       Navigator.push(
@@ -95,7 +115,7 @@ class _DashboardState extends State<Dashboard> {
         ),
       );
     }
-
+    _stopListening();
   }
 
   void toggleListening() {
