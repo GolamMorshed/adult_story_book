@@ -81,12 +81,12 @@ class _StoryDashboardState extends State<StoryDashboard1> {
     return stories.where((story) {
       final title = story.title.toLowerCase();
       final genre = story.genre.toLowerCase();
-      final content = story.content.toLowerCase();
+      //final content = story.content.toLowerCase();
       final searchQuery = query.toLowerCase();
 
       return title.contains(searchQuery) ||
           genre.contains(searchQuery) ||
-          content.contains(searchQuery);
+         ;
     }).toList();
   }
 

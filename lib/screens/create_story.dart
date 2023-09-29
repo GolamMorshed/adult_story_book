@@ -45,11 +45,14 @@ class _StoryInputPageState extends State<StoryInputPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController titleController = TextEditingController();
 
+
   String? selectedGenre;
   final stt.SpeechToText _speech = stt.SpeechToText();
 
   bool _isListening = false;
+
   String _text = '';
+  String _text1 = '';
 
   @override
   void initState() {
@@ -68,7 +71,6 @@ class _StoryInputPageState extends State<StoryInputPage> {
   void _listen() async {
     if (!_isListening) {
       bool available = await _speech.initialize();
-
       if (available) {
         _speech.listen(
           onResult: (result) => setState(() {
@@ -227,10 +229,22 @@ class _StoryInputPageState extends State<StoryInputPage> {
                     child: Container(
                       height: 200,
                       child: TextFormField(
-
                         controller: TextEditingController(text: _text),
+                        // onChanged: (value) {
+                        //   setState(() {
+                        //     _text = value; // Update the _text variable with the entered text
+                        //   });
+                        // },
+                        // onChanged: (value) {
+                        //   setState(() {
+                        //     _text = value;
+                        //   });
+                        // },
                         minLines: 5, // Minimum number of lines
-                        maxLines: 10, // Maximum number of lines
+                        maxLines: 10,
+                        // autovalidateMode: AutovalidateMode.onUserInteraction, // This enables validation on user interaction
+                        // textCapitalization: TextCapitalization.none,// Maximum number of lines
+
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Story is required';
